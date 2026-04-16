@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Upload Documents - Shubham Computer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0,1" rel="stylesheet" />
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        :root { --bg: #0f2027; --bg2: #000000; --card: #ffffff0a; --card-solid: #1e2a32; --text: #ffffff; --sub: #aaaaaa; --accent: #00c3ff; --nav: #0c1a20; --border: rgba(255,255,255,0.08); --danger: #ff4d4d; --success: #2ecc71; --warning: #ffaa44; }
+        body { background: radial-gradient(circle at 10% 20%, var(--bg), var(--bg2)); color: var(--text); min-height: 100vh; padding-bottom: 70px; }
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; background: var(--nav); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
+        .menu-btn { font-size: 28px; cursor: pointer; }
+        .header-right { display: flex; align-items: center; gap: 15px; }
+        .notification-bell { position: relative; cursor: pointer; text-decoration: none; color: var(--text); display: inline-flex; align-items: center; justify-content: center; }
+        .notification-bell span.material-symbols-rounded { font-size: 28px; }
+        .badge-notification { position: absolute; top: -6px; right: -8px; background: #e53935; color: white; font-size: 11px; font-weight: 700; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid var(--nav); line-height: 1; box-shadow: 0 0 0 1px rgba(229,57,53,0.4); }
+        .profile { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+        .profile img { width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--accent); }
+        .profile span { display: none; } @media (min-width: 480px) { .profile span { display: inline; } }
+        .sidebar { position: fixed; left: -280px; top: 0; width: 280px; height: 100%; background: var(--nav); padding: 24px 20px; transition: 0.3s; z-index: 1200; border-right: 1px solid var(--border); overflow-y: auto; }
+        .sidebar.active { left: 0; }
+        .sidebar a { display: flex; align-items: center; gap: 14px; padding: 12px 16px; margin-bottom: 8px; color: var(--sub); text-decoration: none; border-radius: 14px; }
+        .sidebar a:hover { background: var(--accent); color: #fff; }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(2px); display: none; z-index: 1100; }
+        .overlay.active { display: block; }
+        .main-container { max-width: 600px; margin: 0 auto; padding: 20px 18px 80px; }
+        .section-title { font-size: 18px; font-weight: 600; margin: 24px 0 12px; color: var(--accent); }
+        .card { background: var(--card); backdrop-filter: blur(4px); border-radius: 24px; padding: 20px; border: 1px solid var(--border); margin-bottom: 16px; }
+        .btn { background: linear-gradient(135deg, var(--accent), #2c6e9e); border: none; padding: 12px 24px; border-radius: 40px; color: white; font-weight: 600; cursor: pointer; width: 100%; }
+        .upload-area { border: 2px dashed var(--border); border-radius: 20px; padding: 40px; text-align: center; cursor: pointer; transition: 0.3s; }
+        .upload-area:hover { border-color: var(--accent); background: rgba(0,195,255,0.05); }
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: var(--nav); display: flex; justify-content: space-around; padding: 8px 12px 12px; border-top: 1px solid var(--border); z-index: 100; }
+        .nav-item { text-align: center; font-size: 12px; color: var(--sub); text-decoration: none; }
+        .nav-item span { font-size: 26px; display: block; }
+        .nav-item.active-nav { color: var(--accent); }
+        input, select { width: 100%; padding: 12px 16px; background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 16px; color: var(--text); outline: none; }
+    </style>
+</head>
+<body>
+    <div class="sidebar" id="sidebar">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;"><img src="/images/logo.png" style="width:28px;height:28px;" onerror="this.src='https://via.placeholder.com/28/00c3ff/ffffff?text=SC'"><h3 style="color:var(--accent);margin:0;">Shubham Computers</h3></div>
+        <a href="/home"><span class="material-symbols-rounded">home</span>Home</a>
+        <a href="/profile"><span class="material-symbols-rounded">person</span>My Profile</a>
+        <a href="/requests"><span class="material-symbols-rounded">history</span>My Requests</a>
+        <a href="/upload-page"><span class="material-symbols-rounded">cloud_upload</span>Upload</a>
+        <a href="/payments"><span class="material-symbols-rounded">payments</span>Payments</a>
+        <a href="/apply"><span class="material-symbols-rounded">description</span>Apply</a>
+        <a href="/notifications"><span class="material-symbols-rounded">notifications</span>Notifications<% if (unreadCount > 0) { %><span style="background:var(--danger);color:white;padding:2px 8px;border-radius:20px;font-size:11px;margin-left:auto;"><%= unreadCount %></span><% } %></a>
+        <a href="/certificates"><span class="material-symbols-rounded">verified</span>My Certificates</a>
+        <a href="/announcements"><span class="material-symbols-rounded">campaign</span>Announcements</a>
+        <a href="/support"><span class="material-symbols-rounded">support_agent</span>Support</a>
+        <a href="/logout" style="margin-top:30px;color:var(--danger);"><span class="material-symbols-rounded">logout</span>Logout</a>
+    </div>
+    <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+    
+    <div class="header">
+        <span class="material-symbols-rounded menu-btn" onclick="toggleSidebar()">menu</span>
+        <div class="header-right">
+            <a href="/notifications" class="notification-bell"><span class="material-symbols-rounded">notifications</span><% if (unreadCount > 0) { %><span class="badge-notification"><%= unreadCount>9?'9+':unreadCount %></span><% } %></a>
+            <div class="profile" onclick="window.location.href='/profile'"><span><%= user.fullName %></span><img src="<%= user.profileImage || 'https://i.pravatar.cc/100?img=7' %>" alt="avatar"></div>
+        </div>
+    </div>
+    
+    <div class="main-container">
+        <div class="section-title">📤 Upload Documents</div>
+        <div class="card">
+            <form id="uploadForm" enctype="multipart/form-data">
+                <div class="upload-area" onclick="document.getElementById('fileInput').click()"><span class="material-symbols-rounded" style="font-size:48px;color:var(--accent);">cloud_upload</span><p>Click or drag files</p><p style="font-size:12px;color:var(--sub);">Max 2MB (Images & PDF)</p></div>
+                <input type="file" id="fileInput" name="files" multiple accept="image/*,application/pdf" style="display:none;">
+                <div style="margin-top:20px;"><label>Document Type</label><select id="docType"><option value="">Select</option><option value="aadhar">Aadhar</option><option value="pan">PAN</option><option value="income">Income Certificate</option><option value="caste">Caste Certificate</option><option value="other">Other</option></select></div>
+                <div id="fileList" style="margin:15px 0;"></div>
+                <div id="progressSection" style="display:none;margin:15px 0;"><div style="background:rgba(255,255,255,0.1);height:8px;border-radius:4px;"><div id="progressBar" style="width:0%;height:100%;background:var(--accent);"></div></div><p id="progressText" style="text-align:center;margin-top:8px;">0%</p></div>
+                <button type="submit" class="btn">Upload</button>
+            </form>
+        </div>
+        <div class="section-title">📁 Recent Uploads</div>
+        <div id="recentFiles"><p style="color:var(--sub);text-align:center;padding:20px;">Loading...</p></div>
+    </div>
+    
+    <div class="bottom-nav">
+        <a href="/home" class="nav-item "><span class="material-symbols-rounded">home</span>Home</a>
+        <a href="/apply" class="nav-item"><span class="material-symbols-rounded">description</span>Apply</a>
+        <a href="/requests" class="nav-item"><span class="material-symbols-rounded">history</span>Requests</a>
+        <a href="/profile" class="nav-item"><span class="material-symbols-rounded">person</span>Profile</a>
+    </div>
+    
+    <script>
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('overlay').classList.toggle('active'); }
+        const fileInput = document.getElementById('fileInput'), fileList = document.getElementById('fileList');
+        fileInput.addEventListener('change', function() { fileList.innerHTML = ''; Array.from(this.files).forEach((f,i) => { if(f.size>2*1024*1024) { alert(`"${f.name}" exceeds 2MB`); return; } const d = document.createElement('div'); d.style.cssText = 'padding:10px;background:rgba(0,195,255,0.1);border-radius:12px;margin-bottom:8px;display:flex;justify-content:space-between;'; d.innerHTML = `<span>📎 ${f.name} (${(f.size/1024).toFixed(2)} KB)</span><span onclick="removeFile(${i})" style="cursor:pointer;color:var(--danger);">✕</span>`; fileList.appendChild(d); }); });
+        document.getElementById('uploadForm').addEventListener('submit', async (e) => { e.preventDefault(); const files = fileInput.files; if(!files.length) { alert('Select files'); return; } const formData = new FormData(); for(let f of files) { if(f.size>2*1024*1024) { alert(`"${f.name}" exceeds 2MB`); return; } formData.append('files', f); } formData.append('docType', document.getElementById('docType').value); const ps = document.getElementById('progressSection'), pb = document.getElementById('progressBar'), pt = document.getElementById('progressText'); ps.style.display = 'block'; try { const xhr = new XMLHttpRequest(); xhr.upload.addEventListener('progress', (e) => { if(e.lengthComputable) { const p = Math.round((e.loaded/e.total)*100); pb.style.width = p+'%'; pt.textContent = p+'%'; } }); xhr.onload = () => { if(xhr.status===200) { alert('✅ Uploaded!'); ps.style.display = 'none'; fileInput.value = ''; fileList.innerHTML = ''; location.reload(); } else alert('Upload failed'); }; xhr.open('POST', '/upload/ajax'); xhr.send(formData); } catch(e) { alert('Error: '+e.message); } });
+        async function loadRecentFiles() { try { const r = await fetch('/api/my-files'); const files = await r.json(); const c = document.getElementById('recentFiles'); if(files.length) c.innerHTML = files.slice(0,5).map(f=>`<div class="card" style="padding:12px;margin-bottom:8px;display:flex;justify-content:space-between;"><span>📄 ${f.originalName}</span><span style="color:var(--sub);font-size:12px;">${(f.size/1024).toFixed(2)} KB</span></div>`).join(''); else c.innerHTML = '<p style="color:var(--sub);text-align:center;padding:20px;">No files</p>'; } catch(e) {} }
+        async function updateUnreadCount() { try { const r = await fetch('/api/unread-count'); const d = await r.json(); const b = document.querySelector('.badge-notification'); if(b) { if(d.count>0) { b.textContent = d.count>9?'9+':d.count; b.style.display='flex'; } else b.style.display='none'; } } catch(e) {} }
+        loadRecentFiles(); setInterval(updateUnreadCount, 30000); updateUnreadCount();
+    </script>
+</body>
+</html>

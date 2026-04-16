@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Announcements - Shubham Computer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0,1" rel="stylesheet" />
+    <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+    :root { --bg: #0f2027; --bg2: #000000; --card: #ffffff0a; --card-solid: #1e2a32; --text: #ffffff; --sub: #aaaaaa; --accent: #00c3ff; --nav: #0c1a20; --border: rgba(255,255,255,0.08); --danger: #ff4d4d; --success: #2ecc71; --warning: #ffaa44; }
+    body { background: radial-gradient(circle at 10% 20%, var(--bg), var(--bg2)); color: var(--text); min-height: 100vh; padding-bottom: 70px; }
+    .header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; background: var(--nav); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
+    .menu-btn { font-size: 28px; cursor: pointer; }
+    .header-right { display: flex; align-items: center; gap: 15px; }
+    .notification-bell { position: relative; cursor: pointer; text-decoration: none; color: var(--text); display: inline-flex; align-items: center; justify-content: center; }
+    .notification-bell span.material-symbols-rounded { font-size: 28px; }
+    .badge-notification { position: absolute; top: -6px; right: -8px; background: #e53935; color: white; font-size: 11px; font-weight: 700; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid var(--nav); line-height: 1; box-shadow: 0 0 0 1px rgba(229,57,53,0.4); }
+    .profile { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+    .profile img { width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--accent); }
+    .sidebar { position: fixed; left: -280px; top: 0; width: 280px; height: 100%; background: var(--nav); padding: 24px 20px; transition: 0.3s; z-index: 1200; border-right: 1px solid var(--border); overflow-y: auto; }
+    .sidebar.active { left: 0; }
+    .sidebar a { display: flex; align-items: center; gap: 14px; padding: 12px 16px; margin-bottom: 8px; color: var(--sub); text-decoration: none; border-radius: 14px; }
+    .sidebar a:hover { background: var(--accent); color: #fff; }
+    .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(2px); display: none; z-index: 1100; }
+    .overlay.active { display: block; }
+    .main-container { max-width: 600px; margin: 0 auto; padding: 20px 18px 80px; }
+    .section-title { font-size: 18px; font-weight: 600; margin: 24px 0 12px; color: var(--accent); }
+    .card { background: var(--card); backdrop-filter: blur(4px); border-radius: 24px; padding: 20px; border: 1px solid var(--border); margin-bottom: 16px; cursor: pointer; transition: 0.2s; }
+    .card:hover { transform: translateY(-4px); border-color: var(--accent); }
+    .badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; display: inline-block; }
+    .badge-important { background: var(--danger); color: white; }
+    .badge-vacancy { background: var(--success); color: white; }
+    .badge-general { background: var(--accent); color: white; }
+    .badge-new_service { background: #9b59b6; color: white; }
+    .badge-update { background: var(--warning); color: black; }
+    .announcement-title { font-weight: 600; margin-bottom: 8px; }
+    .announcement-preview { color: var(--sub); font-size: 13px; margin-bottom: 12px; }
+    .announcement-meta { display: flex; justify-content: space-between; font-size: 12px; color: var(--sub); }
+    .empty-state { text-align: center; padding: 60px 20px; color: var(--sub); }
+    .bottom-nav { position: fixed; bottom: 0; width: 100%; background: var(--nav); display: flex; justify-content: space-around; padding: 8px 12px 12px; border-top: 1px solid var(--border); z-index: 100; }
+    .nav-item { text-align: center; font-size: 12px; color: var(--sub); text-decoration: none; }
+    .nav-item span { font-size: 26px; display: block; }
+    .nav-item.active-nav { color: var(--accent); }
+</style>
+</head>
+<body>
+    <div class="sidebar" id="sidebar">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;"><img src="/images/logo.png" style="width:28px;height:28px;" onerror="this.src='https://via.placeholder.com/28/00c3ff/ffffff?text=SC'"><h3 style="color:var(--accent);margin:0;">Shubham Computers</h3></div>
+        <a href="/home"><span class="material-symbols-rounded">home</span>Home</a>
+        <a href="/profile"><span class="material-symbols-rounded">person</span>My Profile</a>
+        <a href="/requests"><span class="material-symbols-rounded">history</span>My Requests</a>
+        <a href="/upload-page"><span class="material-symbols-rounded">cloud_upload</span>Upload</a>
+        <a href="/payments"><span class="material-symbols-rounded">payments</span>Payments</a>
+        <a href="/apply"><span class="material-symbols-rounded">description</span>Apply</a>
+        <a href="/notifications"><span class="material-symbols-rounded">notifications</span>Notifications<% if (unreadCount > 0) { %><span style="background:var(--danger);color:white;padding:2px 8px;border-radius:20px;font-size:11px;margin-left:auto;"><%= unreadCount %></span><% } %></a>
+        <a href="/certificates"><span class="material-symbols-rounded">verified</span>My Certificates</a>
+        <a href="/announcements" class="active"><span class="material-symbols-rounded">campaign</span>Announcements</a>
+        <a href="/support"><span class="material-symbols-rounded">support_agent</span>Support</a>
+        <a href="/logout" style="margin-top:30px;color:var(--danger);"><span class="material-symbols-rounded">logout</span>Logout</a>
+    </div>
+    <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+    
+    <div class="header">
+        <span class="material-symbols-rounded menu-btn" onclick="toggleSidebar()">menu</span>
+        <div class="header-right">
+            <a href="/notifications" class="notification-bell"><span class="material-symbols-rounded">notifications</span><% if (unreadCount > 0) { %><span class="badge-notification"><%= unreadCount>9?'9+':unreadCount %></span><% } %></a>
+            <div class="profile" onclick="window.location.href='/profile'"><span><%= user.fullName %></span><img src="<%= user.profileImage || 'https://i.pravatar.cc/100?img=7' %>" alt="avatar"></div>
+        </div>
+    </div>
+    
+    <div class="main-container">
+        <div class="section-title">📢 Announcements</div>
+        
+        <% if (announcements && announcements.length > 0) { %>
+            <% announcements.forEach(a => { %>
+            <div class="card" onclick="location.href='/announcements/<%= a._id %>'">
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                    <span class="announcement-title"><%= a.title %></span>
+                    <span class="badge badge-<%= a.type %>"><%= a.type.replace('_', ' ') %></span>
+                </div>
+                <p class="announcement-preview"><%= a.content.substring(0, 120) %>...</p>
+                <div class="announcement-meta">
+                    <span>📅 <%= new Date(a.createdAt).toLocaleDateString('en-IN') %></span>
+                    <span>👁️ <%= a.views %> views</span>
+                </div>
+                <% if (a.attachment && a.attachment.fileId) { %>
+                <div style="margin-top: 8px;">📎 Attachment available</div>
+                <% } %>
+            </div>
+            <% }) %>
+        <% } else { %>
+            <div class="empty-state">
+                <span class="material-symbols-rounded" style="font-size: 60px; color: var(--sub);">campaign</span>
+                <h3>No Announcements</h3>
+                <p>Check back later for updates!</p>
+            </div>
+        <% } %>
+    </div>
+    
+    <div class="bottom-nav">
+        <a href="/home" class="nav-item"><span class="material-symbols-rounded">home</span>Home</a>
+        <a href="/apply" class="nav-item"><span class="material-symbols-rounded">description</span>Apply</a>
+        <a href="/requests" class="nav-item"><span class="material-symbols-rounded">history</span>Requests</a>
+        <a href="/profile" class="nav-item"><span class="material-symbols-rounded">person</span>Profile</a>
+    </div>
+    
+    <script>
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('overlay').classList.toggle('active'); }
+        async function updateUnreadCount() { try { const r = await fetch('/api/unread-count'); const d = await r.json(); const b = document.querySelector('.badge-notification'); if(b) { if(d.count>0) { b.textContent = d.count>9?'9+':d.count; b.style.display='flex'; } else b.style.display='none'; } } catch(e) {} }
+        setInterval(updateUnreadCount, 30000); updateUnreadCount();
+    </script>
+</body>
+</html>

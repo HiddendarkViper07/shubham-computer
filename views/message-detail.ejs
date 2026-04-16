@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Chat with Support - Shubham Computer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0,1" rel="stylesheet" />
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        :root { --bg: #0f2027; --bg2: #000000; --card: #ffffff0a; --card-solid: #1e2a32; --text: #ffffff; --sub: #aaaaaa; --accent: #00c3ff; --nav: #0c1a20; --border: rgba(255,255,255,0.08); --danger: #ff4d4d; --success: #2ecc71; --warning: #ffaa44; --info: #00c3ff; }
+        body { background: radial-gradient(circle at 10% 20%, var(--bg), var(--bg2)); color: var(--text); min-height: 100vh; padding-bottom: 70px; }
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; background: var(--nav); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
+        .menu-btn { font-size: 28px; cursor: pointer; }
+        .header-right { display: flex; align-items: center; gap: 15px; }
+        .notification-bell { position: relative; cursor: pointer; text-decoration: none; color: var(--text); display: inline-flex; align-items: center; justify-content: center; }
+        .notification-bell span.material-symbols-rounded { font-size: 28px; }
+        .badge-notification { position: absolute; top: -6px; right: -8px; background: #e53935; color: white; font-size: 11px; font-weight: 700; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid var(--nav); line-height: 1; box-shadow: 0 0 0 1px rgba(229,57,53,0.4); }
+        .profile { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+        .profile img { width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--accent); }
+        .profile span { display: none; } @media (min-width: 480px) { .profile span { display: inline; } }
+        .sidebar { position: fixed; left: -280px; top: 0; width: 280px; height: 100%; background: var(--nav); padding: 24px 20px; transition: 0.3s; z-index: 1200; border-right: 1px solid var(--border); overflow-y: auto; }
+        .sidebar.active { left: 0; }
+        .sidebar a { display: flex; align-items: center; gap: 14px; padding: 12px 16px; margin-bottom: 8px; color: var(--sub); text-decoration: none; border-radius: 14px; }
+        .sidebar a:hover { background: var(--accent); color: #fff; }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(2px); display: none; z-index: 1100; }
+        .overlay.active { display: block; }
+        
+        /* Chat Container */
+        .main-container { max-width: 600px; margin: 0 auto; padding: 0 0 80px; }
+        .chat-header { display: flex; align-items: center; padding: 16px 20px; background: var(--nav); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 50; }
+        .chat-header a { color: var(--text); text-decoration: none; margin-right: 15px; }
+        .chat-user { display: flex; align-items: center; gap: 12px; flex: 1; }
+        .user-avatar { width: 42px; height: 42px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 18px; color: white; }
+        .user-info h4 { margin-bottom: 2px; font-size: 16px; }
+        .user-info p { font-size: 11px; color: var(--sub); }
+        .status-badge { padding: 3px 10px; border-radius: 20px; font-size: 10px; font-weight: 600; }
+        .status-pending { background: var(--warning); color: black; }
+        .status-read { background: var(--info); color: white; }
+        .status-replied { background: var(--success); color: white; }
+        .status-resolved { background: #888; color: white; }
+        
+        /* Chat Messages Area */
+        .chat-messages { padding: 20px 18px; display: flex; flex-direction: column; gap: 16px; min-height: calc(100vh - 200px); }
+        .message-wrapper { display: flex; gap: 10px; max-width: 85%; }
+        .message-wrapper.user { align-self: flex-end; flex-direction: row-reverse; }
+        .message-wrapper.admin { align-self: flex-start; }
+        .message-avatar { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 13px; color: white; flex-shrink: 0; }
+        .message-wrapper.user .message-avatar { background: var(--accent); }
+        .message-wrapper.admin .message-avatar { background: var(--success); }
+        .message-bubble { padding: 10px 14px; border-radius: 18px; position: relative; }
+        .message-wrapper.user .message-bubble { background: var(--accent); color: white; border-bottom-right-radius: 4px; }
+        .message-wrapper.admin .message-bubble { background: var(--card); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
+        .message-time { font-size: 9px; opacity: 0.7; margin-top: 4px; text-align: right; }
+        .message-content { line-height: 1.5; word-break: break-word; font-size: 14px; }
+        
+        /* Date Divider */
+        .date-divider { text-align: center; margin: 10px 0; position: relative; }
+        .date-divider span { background: var(--card); padding: 4px 12px; border-radius: 20px; font-size: 10px; color: var(--sub); border: 1px solid var(--border); }
+        
+        /* Waiting Indicator */
+        .waiting-badge { display: inline-block; background: var(--warning); color: black; padding: 2px 8px; border-radius: 20px; font-size: 10px; margin-left: 8px; }
+        
+        /* Chat Input */
+        .chat-input-container { position: fixed; bottom: 0; left: 0; right: 0; max-width: 600px; margin: 0 auto; padding: 12px 18px; background: var(--nav); border-top: 1px solid var(--border); display: flex; gap: 10px; align-items: center; }
+        .chat-input-container textarea { flex: 1; padding: 12px 16px; background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 24px; color: var(--text); resize: none; outline: none; font-size: 14px; max-height: 100px; }
+        .chat-input-container textarea:focus { border-color: var(--accent); }
+        .send-btn { width: 48px; height: 48px; border-radius: 50%; background: var(--accent); border: none; color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; flex-shrink: 0; }
+        .send-btn:hover { transform: scale(1.05); }
+        .send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        /* Empty State */
+        .empty-state { text-align: center; padding: 60px 20px; color: var(--sub); }
+        
+        /* Bottom Nav */
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: var(--nav); display: flex; justify-content: space-around; padding: 8px 12px 12px; border-top: 1px solid var(--border); z-index: 90; display: none; }
+        
+        /* Typing Indicator */
+        .typing-indicator { display: flex; gap: 4px; padding: 10px 14px; background: var(--card); border-radius: 18px; border-bottom-left-radius: 4px; max-width: 55px; }
+        .typing-indicator span { width: 7px; height: 7px; background: var(--sub); border-radius: 50%; animation: typing 1.4s infinite; }
+        .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes typing { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-6px); } }
+        
+        /* Attachment */
+        .info-note { background: rgba(0,195,255,0.1); padding: 10px 15px; border-radius: 12px; margin: 10px 18px; font-size: 12px; color: var(--sub); text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="sidebar" id="sidebar">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+            <img src="/images/logo.png" style="width:28px;height:28px;" onerror="this.src='https://via.placeholder.com/28/00c3ff/ffffff?text=SC'">
+            <h3 style="color:var(--accent);margin:0;">Shubham Computer</h3>
+        </div>
+        <a href="/home"><span class="material-symbols-rounded">home</span>Home</a>
+        <a href="/profile"><span class="material-symbols-rounded">person</span>My Profile</a>
+        <a href="/requests"><span class="material-symbols-rounded">history</span>My Requests</a>
+        <a href="/upload-page"><span class="material-symbols-rounded">cloud_upload</span>Upload</a>
+        <a href="/payments"><span class="material-symbols-rounded">payments</span>Payments</a>
+        <a href="/apply"><span class="material-symbols-rounded">description</span>Apply</a>
+        <a href="/notifications"><span class="material-symbols-rounded">notifications</span>Notifications
+            <% if (typeof unreadCount !== 'undefined' && unreadCount > 0) { %>
+            <span style="background:var(--danger);color:white;padding:2px 8px;border-radius:20px;font-size:11px;margin-left:auto;"><%= unreadCount %></span>
+            <% } %>
+        </a>
+        <a href="/certificates"><span class="material-symbols-rounded">verified</span>My Certificates</a>
+        <a href="/announcements"><span class="material-symbols-rounded">campaign</span>Announcements</a>
+        <a href="/messages"><span class="material-symbols-rounded">mail</span>My Messages</a>
+        <a href="/support"><span class="material-symbols-rounded">support_agent</span>Support</a>
+        <a href="/logout" style="margin-top:30px;color:var(--danger);"><span class="material-symbols-rounded">logout</span>Logout</a>
+    </div>
+    <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+    
+    <div class="header">
+        <span class="material-symbols-rounded menu-btn" onclick="toggleSidebar()">menu</span>
+        <div class="header-right">
+            <a href="/notifications" class="notification-bell">
+                <span class="material-symbols-rounded">notifications</span>
+                <% if (typeof unreadCount !== 'undefined' && unreadCount > 0) { %>
+                <span class="badge-notification"><%= unreadCount > 9 ? '9+' : unreadCount %></span>
+                <% } %>
+            </a>
+            <div class="profile" onclick="window.location.href='/profile'">
+                <span><%= user.fullName %></span>
+                <img src="<%= user.profileImage || 'https://i.pravatar.cc/100?img=7' %>" alt="avatar">
+            </div>
+        </div>
+    </div>
+    
+    <div class="main-container">
+        <!-- Chat Header -->
+        <div class="chat-header">
+            <a href="/messages"><span class="material-symbols-rounded">arrow_back</span></a>
+            <div class="chat-user">
+                <div class="user-avatar" style="background: var(--success);">S</div>
+                <div class="user-info">
+                    <h4>Shubham Support <span class="status-badge status-<%= message.status %>"><%= message.status.charAt(0).toUpperCase() + message.status.slice(1) %></span></h4>
+                    <p><%= message.subject %></p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Info Note -->
+        <div class="info-note">
+            <span class="material-symbols-rounded" style="font-size: 14px; vertical-align: middle;">info</span>
+            We typically reply within 24 hours. Check back soon!
+        </div>
+        
+        <!-- Chat Messages -->
+        <div class="chat-messages" id="chatMessages">
+            <!-- User's Message -->
+            <div class="message-wrapper user">
+                <div class="message-avatar"><%= user.fullName.charAt(0).toUpperCase() %></div>
+                <div class="message-bubble">
+                    <div class="message-content"><%= message.message.replace(/\n/g, '<br>') %></div>
+                    <div class="message-time"><%= new Date(message.createdAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) %></div>
+                </div>
+            </div>
+            
+            <!-- Admin's Reply (if exists) -->
+            <% if (message.adminReply) { %>
+            <div class="message-wrapper admin">
+                <div class="message-avatar" style="background: var(--success);">S</div>
+                <div class="message-bubble">
+                    <div class="message-content"><%= message.adminReply.replace(/\n/g, '<br>') %></div>
+                    <div class="message-time"><%= new Date(message.repliedAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) %></div>
+                </div>
+            </div>
+            <% } else { %>
+            <!-- Waiting for reply indicator -->
+            <div style="text-align: center; padding: 20px;">
+                <span style="color: var(--sub); font-size: 13px;">⏳ Waiting for support to reply...</span>
+            </div>
+            <% } %>
+        </div>
+    </div>
+    
+    <!-- Chat Input -->
+    <div class="chat-input-container">
+        <textarea id="followupMessage" placeholder="Type a follow-up message..." rows="1"></textarea>
+        <button class="send-btn" onclick="sendFollowup()" id="sendBtn">
+            <span class="material-symbols-rounded">send</span>
+        </button>
+    </div>
+    
+    <script>
+        function toggleSidebar() { 
+            document.getElementById('sidebar').classList.toggle('active'); 
+            document.getElementById('overlay').classList.toggle('active'); 
+        }
+        
+        const textarea = document.getElementById('followupMessage');
+        
+        // Auto-resize textarea
+        textarea.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+        });
+        
+        // Send on Enter (Shift+Enter for new line)
+        textarea.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendFollowup();
+            }
+        });
+        
+        async function sendFollowup() {
+            const followup = textarea.value.trim();
+            if (!followup) { 
+                alert('Please enter a message'); 
+                return; 
+            }
+            
+            const sendBtn = document.getElementById('sendBtn');
+            sendBtn.disabled = true;
+            sendBtn.innerHTML = '<span class="material-symbols-rounded">hourglass</span>';
+            
+            try {
+                const res = await fetch('/support/send', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        subject: '<%= message.subject %> (Follow-up)', 
+                        message: followup 
+                    })
+                });
+                const data = await res.json();
+                
+                if (data.success) { 
+                    alert('✅ Follow-up message sent!');
+                    textarea.value = '';
+                    textarea.style.height = 'auto';
+                } else { 
+                    alert('❌ Failed: ' + (data.error || 'Unknown error'));
+                }
+            } catch(e) { 
+                alert('❌ Error sending message');
+            } finally {
+                sendBtn.disabled = false;
+                sendBtn.innerHTML = '<span class="material-symbols-rounded">send</span>';
+            }
+        }
+        
+        async function updateUnreadCount() { 
+            try { 
+                const r = await fetch('/api/unread-count'); 
+                const d = await r.json(); 
+                const b = document.querySelector('.badge-notification'); 
+                if (b) { 
+                    if (d.count > 0) { 
+                        b.textContent = d.count > 9 ? '9+' : d.count; 
+                        b.style.display = 'flex'; 
+                    } else { 
+                        b.style.display = 'none'; 
+                    } 
+                } 
+            } catch(e) {} 
+        }
+        
+        // Scroll to bottom of chat
+        const chatMessages = document.getElementById('chatMessages');
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        
+        setInterval(updateUnreadCount, 30000); 
+        updateUnreadCount();
+    </script>
+</body>
+</html>

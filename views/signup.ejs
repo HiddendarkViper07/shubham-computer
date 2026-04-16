@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Shubham Computer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet" />
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { min-height: 100vh; display: flex; justify-content: center; align-items: center; background: radial-gradient(circle at top, #0f2027, #000000); color: #fff; padding: 20px; }
+        .signup-container { max-width: 420px; width: 100%; }
+        .logo-wrapper { display: flex; flex-direction: column; align-items: center; margin-bottom: 25px; }
+        .logo { width: 80px; height: 80px; object-fit: contain; margin-bottom: 10px; filter: drop-shadow(0 0 10px #00c3ff88); }
+        .brand-name { font-size: 22px; font-weight: 600; }
+        .brand-tag { font-size: 11px; color: #aaa; }
+        .heading { font-size: 20px; margin-bottom: 25px; color: #ddd; text-align: center; }
+        .alert { padding: 12px; border-radius: 12px; margin-bottom: 20px; background: rgba(255, 77, 77, 0.2); border: 1px solid #ff4d4d; color: #ff4d4d; }
+        .input-box { display: flex; align-items: center; background: rgba(255,255,255,0.05); border-radius: 14px; padding: 14px 16px; margin-bottom: 14px; border: 1px solid rgba(255,255,255,0.05); transition: 0.3s; }
+        .input-box:focus-within { border-color: #00c3ff; box-shadow: 0 0 10px #00c3ff55; }
+        .input-box span { margin-right: 12px; font-size: 20px; }
+        .input-box input { border: none; outline: none; width: 100%; color: #fff; background: transparent; font-size: 15px; }
+        .btn { width: 100%; padding: 14px; border: none; border-radius: 14px; background: linear-gradient(135deg, #00c3ff, #3a7bd5); color: #fff; font-size: 16px; font-weight: 600; cursor: pointer; transition: 0.3s; margin-top: 10px; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 20px #00c3ff66; }
+        .divider { display: flex; align-items: center; text-align: center; margin: 25px 0; color: #aaa; }
+        .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .divider span { padding: 0 15px; font-size: 12px; }
+        .social-buttons { display: flex; flex-direction: column; gap: 12px; }
+        .social-btn { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 12px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.03); color: #fff; font-size: 14px; font-weight: 500; cursor: pointer; text-decoration: none; transition: 0.3s; }
+        .social-btn:hover { background: rgba(255,255,255,0.1); transform: translateY(-2px); }
+        .social-btn img { width: 20px; height: 20px; }
+        .login-link { text-align: center; margin-top: 25px; font-size: 14px; color: #aaa; }
+        .login-link a { color: #00c3ff; text-decoration: none; font-weight: 500; }
+        .terms { text-align: center; margin-top: 20px; font-size: 11px; color: #666; }
+        .terms a { color: #00c3ff; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="signup-container">
+        <div class="logo-wrapper">
+            <img src="/images/logo.png" class="logo" alt="logo" onerror="this.src='https://via.placeholder.com/80/00c3ff/ffffff?text=SC'">
+            <div class="brand-name">Shubham Computer</div>
+            <div class="brand-tag">Your Digital Service Partner</div>
+        </div>
+        <div class="heading">Create Account</div>
+        <% if (error) { %><div class="alert"><%= error %></div><% } %>
+        <form action="/auth/register" method="POST">
+            <div class="input-box"><span>👤</span><input type="text" name="fullName" placeholder="Full Name" required></div>
+            <div class="input-box"><span>📧</span><input type="email" name="email" placeholder="Email Address" required></div>
+            <div class="input-box"><span>📱</span><input type="tel" name="mobile" placeholder="Mobile Number (Optional)"></div>
+            <div class="input-box"><span>🔒</span><input type="password" name="password" placeholder="Create Password" required></div>
+            <div class="input-box"><span>✓</span><input type="password" name="confirmPassword" placeholder="Confirm Password" required></div>
+            <button type="submit" class="btn">Sign Up</button>
+        </form>
+        <% if (GOOGLE_CLIENT_ID || FACEBOOK_APP_ID || APPLE_CLIENT_ID) { %>
+        <div class="divider"><span>OR SIGN UP WITH</span></div>
+        <div class="social-buttons">
+            <% if (GOOGLE_CLIENT_ID) { %><a href="/auth/google" class="social-btn google"><img src="https://cdn-icons-png.flaticon.com/512/300/300221.png">Continue with Google</a><% } %>
+            <% if (FACEBOOK_APP_ID) { %><a href="/auth/facebook" class="social-btn facebook"><img src="https://cdn-icons-png.flaticon.com/512/733/733547.png">Continue with Facebook</a><% } %>
+            <% if (APPLE_CLIENT_ID) { %><a href="/auth/apple" class="social-btn apple"><img src="https://cdn-icons-png.flaticon.com/512/0/747.png">Continue with Apple</a><% } %>
+        </div>
+        <% } %>
+        <div class="login-link">Already have an account? <a href="/login">Login</a></div>
+        <div class="terms">By signing up, you agree to our <a href="#">Terms</a> and <a href="#">Privacy Policy</a></div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Request Details - Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet" />
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        :root { --bg: #0f2027; --bg2: #000000; --card: #1e2a32; --text: #ffffff; --sub: #aaaaaa; --accent: #ff4757; --nav: #0c1a20; --border: rgba(255,255,255,0.08); --success: #2ecc71; --warning: #ffaa44; --danger: #ff4d4d; --info: #00c3ff; }
+        body { background: radial-gradient(circle at 10% 20%, var(--bg), var(--bg2)); color: var(--text); min-height: 100vh; }
+        .admin-layout { display: flex; min-height: 100vh; }
+        .admin-sidebar { width: 260px; background: var(--nav); border-right: 1px solid var(--border); padding: 24px 16px; position: fixed; height: 100vh; overflow-y: auto; }
+        .admin-main { margin-left: 260px; flex: 1; padding: 24px; }
+        .sidebar-header { padding-bottom: 24px; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
+        .sidebar-header h2 { color: var(--accent); }
+        .nav-link { display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: var(--sub); text-decoration: none; border-radius: 12px; }
+        .nav-link:hover, .nav-link.active { background: var(--accent); color: white; }
+        .nav-link span { font-size: 22px; }
+        .back-link { display: inline-block; margin-bottom: 24px; color: var(--sub); text-decoration: none; }
+        .back-link:hover { color: var(--accent); }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
+        .detail-card { background: var(--card); border-radius: 16px; padding: 24px; border: 1px solid var(--border); }
+        .card-title { font-size: 18px; font-weight: 600; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; color: var(--accent); }
+        .info-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); }
+        .info-row:last-child { border-bottom: none; }
+        .info-label { color: var(--sub); }
+        .info-value { font-weight: 500; }
+        .badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; display: inline-block; }
+        .badge-success { background: var(--success); color: white; }
+        .badge-warning { background: var(--warning); color: black; }
+        .badge-danger { background: var(--danger); color: white; }
+        .badge-info { background: var(--info); color: white; }
+        .badge-pending { background: var(--warning); color: black; }
+        .badge-processing { background: var(--info); color: white; }
+        .badge-completed { background: var(--success); color: white; }
+        .badge-rejected { background: var(--danger); color: white; }
+        .status-section { background: var(--card); border-radius: 16px; padding: 24px; margin-bottom: 24px; border: 1px solid var(--border); }
+        .status-buttons { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        .status-btn { padding: 10px 20px; border-radius: 40px; border: none; cursor: pointer; font-weight: 500; transition: all 0.2s; }
+        .status-btn:hover { transform: translateY(-2px); }
+        .status-btn.pending { background: var(--warning); color: black; }
+        .status-btn.processing { background: var(--info); color: white; }
+        .status-btn.completed { background: var(--success); color: white; }
+        .status-btn.rejected { background: var(--danger); color: white; }
+        .status-btn.active { opacity: 1; transform: scale(1.05); box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        textarea { width: 100%; padding: 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 12px; color: var(--text); margin-top: 16px; resize: vertical; outline: none; }
+        textarea:focus { border-color: var(--accent); }
+        .btn-primary { padding: 12px 24px; background: var(--accent); border: none; color: white; border-radius: 40px; cursor: pointer; font-weight: 500; transition: all 0.2s; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(255,71,87,0.3); }
+        .btn-success { background: var(--success); }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; color: var(--sub); font-size: 14px; }
+        input[type="file"] { width: 100%; padding: 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 12px; color: var(--text); cursor: pointer; }
+        input[type="date"] { width: 100%; padding: 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 12px; color: var(--text); cursor: pointer; }
+        .file-list { margin-top: 20px; }
+        .file-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 15px; background: rgba(0,195,255,0.1); border-radius: 12px; margin-bottom: 8px; }
+        .file-item a { color: var(--accent); text-decoration: none; margin-left: 15px; }
+        .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: var(--card); color: white; padding: 15px 30px; border-radius: 50px; z-index: 9999; border: 1px solid var(--accent); box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
+        .toast.success { border-color: var(--success); background: rgba(46,204,113,0.2); }
+        .toast.error { border-color: var(--danger); background: rgba(255,77,77,0.2); }
+    </style>
+</head>
+<body>
+    <div class="admin-layout">
+        <div class="admin-sidebar">
+            <div class="sidebar-header">
+                <h2>Shubham Admin</h2>
+                <p style="color: var(--sub); font-size: 13px;"><%= user.fullName %></p>
+            </div>
+            <nav>
+                <a href="/admin/dashboard" class="nav-link"><span class="material-symbols-rounded">dashboard</span>Dashboard</a>
+                <a href="/admin/services" class="nav-link "><span class="material-symbols-rounded">settings</span>Services</a>
+                <a href="/admin/users" class="nav-link "><span class="material-symbols-rounded">group</span>Users</a>
+                <a href="/admin/requests" class="nav-link active"><span class="material-symbols-rounded">assignment</span>Requests</a>
+                <a href="/admin/files" class="nav-link"><span class="material-symbols-rounded">folder</span>Files</a>
+                <a href="/admin/announcements" class="nav-link"><span class="material-symbols-rounded">campaign</span>Announcements</a>
+                <a href="/admin/messages" class="nav-link"><span class="material-symbols-rounded">mail</span>Messages</a>
+                <a href="/admin/settings" class="nav-link"><span class="material-symbols-rounded">tune</span>Settings</a>
+                <div style="margin-top:30px;"><a href="/home" class="nav-link">Back To Website</a><a href="/logout" class="nav-link" style="color:var(--danger);">Logout</a></div>
+            </nav>
+        </div> 
+        <div class="admin-main">
+            <a href="/admin/requests" class="back-link">← Back to Requests</a>
+            
+            <div class="page-header">
+                <div>
+                    <h1 style="margin-bottom:8px;">Request Details</h1>
+                    <p style="color:var(--sub);">Request ID: <%= request.requestId %></p>
+                </div>
+                <span class="badge badge-<%= request.status %>"><%= request.status.charAt(0).toUpperCase() + request.status.slice(1) %></span>
+            </div>
+            
+            <div class="detail-grid">
+                <div class="detail-card">
+                    <div class="card-title"><span class="material-symbols-rounded">info</span>Request Information</div>
+                    <div class="info-row"><span class="info-label">Service</span><span class="info-value"><%= request.serviceName %></span></div>
+                    <div class="info-row"><span class="info-label">Amount</span><span class="info-value">₹<%= request.amount||50 %></span></div>
+                    <div class="info-row"><span class="info-label">Payment Status</span><span class="badge badge-success">Completed</span></div>
+                    <div class="info-row"><span class="info-label">Payment Method</span><span class="info-value"><%= request.paymentMethod||'Razorpay' %></span></div>
+                    <div class="info-row"><span class="info-label">Transaction ID</span><span class="info-value"><%= request.transactionId||'N/A' %></span></div>
+                    <div class="info-row"><span class="info-label">Created</span><span class="info-value"><%= new Date(request.createdAt).toLocaleString('en-IN') %></span></div>
+                    <div class="info-row"><span class="info-label">Last Updated</span><span class="info-value"><%= new Date(request.updatedAt).toLocaleString('en-IN') %></span></div>
+                </div>
+                
+                <div class="detail-card">
+                    <div class="card-title"><span class="material-symbols-rounded">person</span>Applicant Information</div>
+                    <div class="info-row"><span class="info-label">Full Name</span><span class="info-value"><%= request.userName %></span></div>
+                    <div class="info-row"><span class="info-label">Email</span><span class="info-value"><%= request.userEmail %></span></div>
+                    <div class="info-row"><span class="info-label">Mobile</span><span class="info-value"><%= request.mobile||'N/A' %></span></div>
+                    <div class="info-row"><span class="info-label">Address</span><span class="info-value"><%= request.address||'N/A' %></span></div>
+                    <% if (request.userId) { %>
+                    <div class="info-row"><span class="info-label">User ID</span><span class="info-value"><a href="/admin/users/<%= request.userId._id || request.userId %>" style="color:var(--accent);"><%= request.userId._id || request.userId %></a></span></div>
+                    <% } %>
+                </div>
+            </div>
+            
+            <!-- Required Documents -->
+            <div class="detail-card" style="margin-bottom:24px;">
+                <div class="card-title"><span class="material-symbols-rounded">description</span>Required Documents</div>
+                <div style="display:flex;flex-wrap:wrap;gap:8px;">
+                    <% if (request.requiredDocs && request.requiredDocs.length) { %>
+                        <% request.requiredDocs.forEach(doc => { %>
+                        <span style="background:rgba(0,195,255,0.1);padding:6px 15px;border-radius:20px;font-size:13px;">📄 <%= doc %></span>
+                        <% }) %>
+                    <% } else { %>
+                        <span style="color:var(--sub);">No documents listed</span>
+                    <% } %>
+                </div>
+            </div>
+            
+            <!-- Uploaded Files -->
+            <div class="detail-card" style="margin-bottom:24px;">
+                <div class="card-title"><span class="material-symbols-rounded">folder</span>Uploaded Documents</div>
+                <div class="file-list">
+                    <% if (request.uploadedFiles && request.uploadedFiles.length) { %>
+                        <% request.uploadedFiles.forEach(file => { %>
+                        <div class="file-item">
+                            <span>📎 <%= file.fileName %></span>
+                            <div>
+                                <% if (file.fileId && file.fileId._id) { %>
+                                <a href="/upload/file/<%= file.fileId._id %>" target="_blank">View</a>
+                                <a href="/upload/download/<%= file.fileId._id %>">Download</a>
+                                <% } else if (file.fileId) { %>
+                                <a href="/upload/file/<%= file.fileId %>" target="_blank">View</a>
+                                <a href="/upload/download/<%= file.fileId %>">Download</a>
+                                <% } %>
+                            </div>
+                        </div>
+                        <% }) %>
+                    <% } else { %>
+                        <p style="color:var(--sub);text-align:center;padding:20px;">No files uploaded</p>
+                    <% } %>
+                </div>
+            </div>
+            
+            <!-- Extra Message -->
+            <% if (request.extraMessage) { %>
+            <div class="detail-card" style="margin-bottom:24px;">
+                <div class="card-title"><span class="material-symbols-rounded">message</span>Applicant Message</div>
+                <p style="padding:12px;background:rgba(0,0,0,0.2);border-radius:12px;"><%= request.extraMessage %></p>
+            </div>
+            <% } %>
+            
+            <!-- Status Update Section -->
+            <div class="status-section">
+                <div class="card-title"><span class="material-symbols-rounded">edit_note</span>Update Request Status</div>
+                <div class="status-buttons">
+                    <button class="status-btn pending <%= request.status==='pending'?'active':'' %>" onclick="updateStatus('pending')">Pending</button>
+                    <button class="status-btn processing <%= request.status==='processing'?'active':'' %>" onclick="updateStatus('processing')">Processing</button>
+                    <button class="status-btn completed <%= request.status==='completed'?'active':'' %>" onclick="updateStatus('completed')">Completed</button>
+                    <button class="status-btn rejected <%= request.status==='rejected'?'active':'' %>" onclick="updateStatus('rejected')">Rejected</button>
+                </div>
+                <textarea id="adminNote" rows="3" placeholder="Add an internal note (optional)..."><%= request.adminNote||'' %></textarea>
+                <div style="margin-top:16px;">
+                    <button class="btn-primary" onclick="saveStatus()">Save Status Changes</button>
+                </div>
+                <% if (request.processedBy) { %>
+                <p style="margin-top:16px;font-size:12px;color:var(--sub);">Last processed by: Admin on <%= request.processedAt ? new Date(request.processedAt).toLocaleString('en-IN') : 'N/A' %></p>
+                <% } %>
+            </div>
+            
+            <!-- Certificate Issuance Section (Only show if completed) -->
+            <% if (request.status === 'completed') { %>
+            <div class="status-section" style="border-color: var(--success);">
+                <div class="card-title" style="color: var(--success);">
+                    <span class="material-symbols-rounded">verified</span>
+                    Issue Certificate
+                </div>
+                <p style="color: var(--sub); margin-bottom: 20px;">Upload the certificate document for this completed request. The user will be able to download it from their Certificates section.</p>
+                
+                <form id="certificateForm" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label>Certificate File (PDF/Image) *</label>
+                        <input type="file" id="certificateFile" name="certificate" accept=".pdf,image/*" required>
+                        <p style="font-size:11px;color:var(--sub);margin-top:5px;">Max 10MB (PDF, JPG, PNG)</p>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Valid Until (Optional)</label>
+                        <input type="date" id="validUntil" name="validUntil" min="<%= new Date().toISOString().split('T')[0] %>">
+                        <p style="font-size:11px;color:var(--sub);margin-top:5px;">Leave empty for 1 year validity</p>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Additional Notes (Optional)</label>
+                        <textarea id="certNotes" rows="2" placeholder="Any notes about this certificate..."></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn-primary btn-success" id="issueCertBtn">
+                        <span class="material-symbols-rounded" style="font-size:18px;vertical-align:middle;">verified</span> 
+                        Issue Certificate
+                    </button>
+                </form>
+            </div>
+            <% } %>
+            
+            <!-- Already Issued Certificate Info -->
+            <% if (request.certificateId) { %>
+            <div class="status-section" style="border-color: var(--success);">
+                <div class="card-title" style="color: var(--success);">
+                    <span class="material-symbols-rounded">check_circle</span>
+                    Certificate Issued
+                </div>
+                <div class="info-row"><span class="info-label">Certificate ID</span><span class="info-value"><%= request.certificateId %></span></div>
+                <div class="info-row"><span class="info-label">Issued Date</span><span class="info-value"><%= request.certificateIssuedDate ? new Date(request.certificateIssuedDate).toLocaleDateString('en-IN') : 'N/A' %></span></div>
+                <p style="margin-top:15px;color:var(--sub);font-size:13px;">✅ Certificate has been issued to the user.</p>
+            </div>
+            <% } %>
+        </div>
+    </div>
+    
+    <script>
+        let selectedStatus = '<%= request.status %>';
+        
+        function updateStatus(status) {
+            selectedStatus = status;
+            // Visual feedback
+            document.querySelectorAll('.status-btn').forEach(btn => {
+                btn.style.opacity = '0.6';
+                btn.classList.remove('active');
+            });
+            event.target.style.opacity = '1';
+            event.target.classList.add('active');
+        }
+        
+        async function saveStatus() {
+            const adminNote = document.getElementById('adminNote').value;
+            
+            try {
+                const response = await fetch('/admin/requests/<%= request._id %>/status', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: selectedStatus, adminNote: adminNote })
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    showToast('✅ Status updated successfully!', 'success');
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    showToast('❌ Failed to update status', 'error');
+                }
+            } catch (error) {
+                showToast('❌ Error updating status', 'error');
+            }
+        }
+        
+        // Certificate Form Submission
+        const certForm = document.getElementById('certificateForm');
+        if (certForm) {
+            certForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const fileInput = document.getElementById('certificateFile');
+                const file = fileInput.files[0];
+                
+                if (!file) {
+                    showToast('❌ Please select a certificate file', 'error');
+                    return;
+                }
+                
+                if (file.size > 10 * 1024 * 1024) {
+                    showToast('❌ File size must be less than 10MB', 'error');
+                    return;
+                }
+                
+                const formData = new FormData();
+                formData.append('certificate', file);
+                formData.append('validUntil', document.getElementById('validUntil').value);
+                formData.append('notes', document.getElementById('certNotes').value);
+                
+                const btn = document.getElementById('issueCertBtn');
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<span class="material-symbols-rounded" style="font-size:18px;vertical-align:middle;animation:spin 1s linear infinite;">progress_activity</span> Issuing...';
+                btn.disabled = true;
+                
+                try {
+                    const response = await fetch('/admin/requests/<%= request._id %>/issue-certificate', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        showToast('✅ Certificate issued successfully! ID: ' + data.certificateId, 'success');
+                        setTimeout(() => location.reload(), 2000);
+                    } else {
+                        showToast('❌ Failed: ' + (data.error || 'Unknown error'), 'error');
+                        btn.innerHTML = originalText;
+                        btn.disabled = false;
+                    }
+                } catch (error) {
+                    showToast('❌ Error issuing certificate', 'error');
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                }
+            });
+        }
+        
+        function showToast(message, type) {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.3s';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+        
+        // Add animation for spinner
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

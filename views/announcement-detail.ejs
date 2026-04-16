@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title><%= announcement.title %> - Shubham Computer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0,1" rel="stylesheet" />
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        :root { --bg: #0f2027; --bg2: #000000; --card: #ffffff0a; --card-solid: #1e2a32; --text: #ffffff; --sub: #aaaaaa; --accent: #00c3ff; --nav: #0c1a20; --border: rgba(255,255,255,0.08); --danger: #ff4d4d; --success: #2ecc71; --warning: #ffaa44; }
+        body { background: radial-gradient(circle at 10% 20%, var(--bg), var(--bg2)); color: var(--text); min-height: 100vh; padding-bottom: 70px; }
+        .header { display: flex; align-items: center; padding: 16px 20px; background: var(--nav); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
+        .header a { color: var(--text); text-decoration: none; margin-right: 15px; }
+        .main-container { max-width: 600px; margin: 0 auto; padding: 20px 18px 80px; }
+        .card { background: var(--card); backdrop-filter: blur(4px); border-radius: 24px; padding: 24px; border: 1px solid var(--border); margin-bottom: 16px; }
+        .badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; display: inline-block; }
+        .badge-important { background: var(--danger); color: white; }
+        .badge-vacancy { background: var(--success); color: white; }
+        .badge-general { background: var(--accent); color: white; }
+        .badge-new_service { background: #9b59b6; color: white; }
+        .badge-update { background: var(--warning); color: black; }
+        .meta-info { color: var(--sub); font-size: 13px; margin: 15px 0; padding: 15px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+        .content { line-height: 1.7; white-space: pre-wrap; }
+        .attachment-btn { display: inline-block; padding: 12px 24px; background: var(--accent); color: white; text-decoration: none; border-radius: 40px; margin-top: 20px; }
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: var(--nav); display: flex; justify-content: space-around; padding: 8px 12px 12px; border-top: 1px solid var(--border); z-index: 100; }
+        .nav-item { text-align: center; font-size: 12px; color: var(--sub); text-decoration: none; }
+        .nav-item span { font-size: 26px; display: block; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="/announcements"><span class="material-symbols-rounded">arrow_back</span></a>
+        <h3 style="font-weight: 500;">Announcement Details</h3>
+    </div>
+    
+    <div class="main-container">
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
+                <h2 style="font-size: 20px;"><%= announcement.title %></h2>
+                <span class="badge badge-<%= announcement.type %>"><%= announcement.type.replace('_', ' ') %></span>
+            </div>
+            
+            <div class="meta-info">
+                <div style="display: flex; justify-content: space-between;">
+                    <span>📅 <%= new Date(announcement.createdAt).toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' }) %></span>
+                    <span>👁️ <%= announcement.views %> views</span>
+                </div>
+                <% if (announcement.createdBy) { %>
+                <div style="margin-top: 8px;">✍️ Posted by: <%= announcement.createdBy.fullName %></div>
+                <% } %>
+            </div>
+            
+            <div class="content">
+                <%= announcement.content.replace(/\n/g, '<br>') %>
+            </div>
+            
+            <% if (announcement.link) { %>
+            <div style="margin-top: 20px;">
+                <a href="<%= announcement.link %>" target="_blank" style="color: var(--accent); text-decoration: none;">
+                    🔗 <%= announcement.link %>
+                </a>
+            </div>
+            <% } %>
+            
+            <% if (announcement.attachment && announcement.attachment.fileId) { %>
+            <div style="margin-top: 20px;">
+                <a href="/announcements/<%= announcement._id %>/download" class="attachment-btn">
+                    📎 Download Attachment (<%= announcement.attachment.fileName %>)
+                </a>
+            </div>
+            <% } %>
+            
+            <% if (announcement.expiresAt) { %>
+            <p style="margin-top: 20px; font-size: 12px; color: var(--warning);">
+                ⏰ Expires on: <%= new Date(announcement.expiresAt).toLocaleDateString('en-IN') %>
+            </p>
+            <% } %>
+        </div>
+    </div>
+    
+    <div class="bottom-nav">
+        <a href="/home" class="nav-item"><span class="material-symbols-rounded">home</span>Home</a>
+        <a href="/apply" class="nav-item"><span class="material-symbols-rounded">description</span>Apply</a>
+        <a href="/requests" class="nav-item"><span class="material-symbols-rounded">history</span>Requests</a>
+        <a href="/profile" class="nav-item"><span class="material-symbols-rounded">person</span>Profile</a>
+    </div>
+</body>
+</html>

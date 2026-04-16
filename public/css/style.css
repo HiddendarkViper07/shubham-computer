@@ -1,0 +1,17 @@
+/* Main Style File - Shubham Computer */
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); display: flex; align-items: center; justify-content: center; z-index: 1500; visibility: hidden; opacity: 0; transition: 0.2s; }
+.modal-overlay.active { visibility: visible; opacity: 1; }
+.modal-card { background: var(--card-solid); max-width: 480px; width: 90%; border-radius: 32px; padding: 24px; color: var(--text); border: 1px solid var(--accent); }
+.upload-area { border: 2px dashed var(--border); border-radius: 20px; padding: 40px; text-align: center; cursor: pointer; transition: 0.3s; }
+.upload-area:hover { border-color: var(--accent); background: rgba(0,195,255,0.05); }
+.upload-area.dragover { border-color: var(--accent); background: rgba(0,195,255,0.1); }
+.progress-container { margin: 20px 0; }
+.progress-bar-bg { background: rgba(255,255,255,0.1); height: 8px; border-radius: 4px; overflow: hidden; }
+.progress-bar-fill { height: 100%; background: var(--accent); width: 0%; transition: width 0.3s ease; }
+.toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: var(--card-solid); color: var(--text); padding: 12px 24px; border-radius: 40px; font-weight: 500; z-index: 9999; box-shadow: 0 4px 20px rgba(0,0,0,0.3); border: 1px solid var(--accent); animation: slideUp 0.3s ease; }
+.toast.success { border-color: var(--success); background: rgba(46,204,113,0.2); }
+.toast.error { border-color: var(--danger); background: rgba(255,77,77,0.2); }
+@keyframes slideUp { from { opacity: 0; transform: translate(-50%, 20px); } to { opacity: 1; transform: translate(-50%, 0); } }
+.spinner { width: 40px; height: 40px; border: 3px solid rgba(255,255,255,0.1); border-top-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (max-width: 768px) { .main-container { padding: 16px 12px 80px; } .stats-grid { grid-template-columns: repeat(2, 1fr); } }

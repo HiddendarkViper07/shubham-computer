@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Support Messages - Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet" />
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        :root { --bg: #0f2027; --bg2: #000000; --card: #1e2a32; --text: #ffffff; --sub: #aaaaaa; --accent: #ff4757; --nav: #0c1a20; --border: rgba(255,255,255,0.08); --success: #2ecc71; --warning: #ffaa44; --danger: #ff4d4d; --info: #00c3ff; }
+        body { background: radial-gradient(circle at 10% 20%, var(--bg), var(--bg2)); color: var(--text); min-height: 100vh; }
+        .admin-layout { display: flex; min-height: 100vh; }
+        .admin-sidebar { width: 260px; background: var(--nav); border-right: 1px solid var(--border); padding: 24px 16px; position: fixed; height: 100vh; overflow-y: auto; }
+        .admin-main { margin-left: 260px; flex: 1; padding: 24px; }
+        .sidebar-header { padding-bottom: 24px; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
+        .sidebar-header h2 { color: var(--accent); }
+        .nav-link { display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: var(--sub); text-decoration: none; border-radius: 12px; }
+        .nav-link:hover, .nav-link.active { background: var(--accent); color: white; }
+        .filter-tabs { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        .filter-tab { padding: 8px 20px; border-radius: 30px; background: var(--card); color: var(--sub); text-decoration: none; border: 1px solid var(--border); }
+        .filter-tab.active { background: var(--accent); color: white; }
+        table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 16px; overflow: hidden; }
+        th, td { padding: 14px 16px; text-align: left; border-bottom: 1px solid var(--border); }
+        th { color: var(--sub); font-weight: 500; font-size: 13px; background: rgba(0,0,0,0.2); }
+        .badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; }
+        .badge-pending { background: var(--warning); color: black; }
+        .badge-read { background: var(--info); color: white; }
+        .badge-replied { background: var(--success); color: white; }
+        .badge-resolved { background: #888; color: white; }
+        .action-btn { padding: 6px 12px; border-radius: 6px; background: var(--accent); color: white; text-decoration: none; font-size: 12px; }
+        .pagination { display: flex; justify-content: center; gap: 10px; margin-top: 30px; }
+        .pagination a { padding: 8px 16px; background: var(--card); color: var(--text); text-decoration: none; border-radius: 8px; }
+        .pagination a.active { background: var(--accent); }
+    </style>
+</head>
+<body>
+    <div class="admin-layout">
+        <div class="admin-sidebar">
+            <div class="sidebar-header"><h2>Shubham Admin</h2><p><%= user.fullName %></p></div>
+            <nav>
+                <a href="/admin/dashboard" class="nav-link"><span class="material-symbols-rounded">dashboard</span>Dashboard</a>
+                <a href="/admin/services" class="nav-link"><span class="material-symbols-rounded">settings</span>Services</a>
+                <a href="/admin/users" class="nav-link"><span class="material-symbols-rounded">group</span>Users</a>
+                <a href="/admin/requests" class="nav-link"><span class="material-symbols-rounded">assignment</span>Requests</a>
+                <a href="/admin/files" class="nav-link"><span class="material-symbols-rounded">folder</span>Files</a>
+                <a href="/admin/announcements" class="nav-link"><span class="material-symbols-rounded">campaign</span>Announcements</a>
+                <a href="/admin/messages" class="nav-link active"><span class="material-symbols-rounded">mail</span>Messages</a>
+                <a href="/admin/settings" class="nav-link"><span class="material-symbols-rounded">tune</span>Settings</a>
+                <div style="margin-top:30px;"><a href="/home" class="nav-link">Back To Website</a><a href="/logout" class="nav-link" style="color:var(--danger);">Logout</a></div>
+            </nav>
+        </div>
+        <div class="admin-main">
+            <h1>Support Messages</h1><p style="color:var(--sub);margin-bottom:20px;">Manage user inquiries</p>
+            
+            <div class="filter-tabs">
+                <a href="/admin/messages?status=all" class="filter-tab <%= filter==='all'?'active':'' %>">All (<%= statusCounts.all||0 %>)</a>
+                <a href="/admin/messages?status=pending" class="filter-tab <%= filter==='pending'?'active':'' %>">Pending (<%= statusCounts.pending||0 %>)</a>
+                <a href="/admin/messages?status=read" class="filter-tab <%= filter==='read'?'active':'' %>">Read (<%= statusCounts.read||0 %>)</a>
+                <a href="/admin/messages?status=replied" class="filter-tab <%= filter==='replied'?'active':'' %>">Replied (<%= statusCounts.replied||0 %>)</a>
+                <a href="/admin/messages?status=resolved" class="filter-tab <%= filter==='resolved'?'active':'' %>">Resolved (<%= statusCounts.resolved||0 %>)</a>
+            </div>
+            
+            <table>
+                <thead><tr><th>User</th><th>Subject</th><th>Message</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
+                <tbody>
+                    <% if (messages && messages.length) { %>
+                        <% messages.forEach(m => { %>
+                        <tr>
+                            <td><%= m.userName %><br><small style="color:var(--sub);"><%= m.userEmail %></small></td>
+                            <td><%= m.subject %></td>
+                            <td><%= m.message.substring(0, 40) %>...</td>
+                            <td><span class="badge badge-<%= m.status %>"><%= m.status %></span></td>
+                            <td><%= new Date(m.createdAt).toLocaleDateString('en-IN') %></td>
+                            <td><a href="/admin/messages/<%= m._id %>" class="action-btn">View</a></td>
+                        </tr>
+                        <% }) %>
+                    <% } else { %>
+                        <tr><td colspan="6" style="text-align:center;padding:40px;">No messages</td></tr>
+                    <% } %>
+                </tbody>
+            </table>
+            
+            <% if (pagination && pagination.totalPages > 1) { %>
+            <div class="pagination">
+                <% if (pagination.page > 1) { %><a href="/admin/messages?status=<%= filter %>&page=<%= pagination.page-1 %>">←</a><% } %>
+                <% for(let i=1; i<=pagination.totalPages; i++) { %><a href="/admin/messages?status=<%= filter %>&page=<%= i %>" class="<%= i===pagination.page?'active':'' %>"><%= i %></a><% } %>
+                <% if (pagination.page < pagination.totalPages) { %><a href="/admin/messages?status=<%= filter %>&page=<%= pagination.page+1 %>">→</a><% } %>
+            </div>
+            <% } %>
+        </div>
+    </div>
+</body>
+</html>

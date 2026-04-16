@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Support - Shubham Computer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0,1" rel="stylesheet" />
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        :root { --bg: #0f2027; --bg2: #000000; --card: #ffffff0a; --card-solid: #1e2a32; --text: #ffffff; --sub: #aaaaaa; --accent: #00c3ff; --nav: #0c1a20; --border: rgba(255,255,255,0.08); --danger: #ff4d4d; --success: #2ecc71; --warning: #ffaa44; }
+        body { background: radial-gradient(circle at 10% 20%, var(--bg), var(--bg2)); color: var(--text); min-height: 100vh; padding-bottom: 70px; }
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; background: var(--nav); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
+        .menu-btn { font-size: 28px; cursor: pointer; }
+        .header-right { display: flex; align-items: center; gap: 15px; }
+        .notification-bell { position: relative; cursor: pointer; text-decoration: none; color: var(--text); display: inline-flex; align-items: center; justify-content: center; }
+        .notification-bell span.material-symbols-rounded { font-size: 28px; }
+        .badge-notification { position: absolute; top: -6px; right: -8px; background: #e53935; color: white; font-size: 11px; font-weight: 700; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid var(--nav); line-height: 1; box-shadow: 0 0 0 1px rgba(229,57,53,0.4); }
+        .profile { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+        .profile img { width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--accent); }
+        .profile span { display: none; } @media (min-width: 480px) { .profile span { display: inline; } }
+        .sidebar { position: fixed; left: -280px; top: 0; width: 280px; height: 100%; background: var(--nav); padding: 24px 20px; transition: 0.3s; z-index: 1200; border-right: 1px solid var(--border); overflow-y: auto; }
+        .sidebar.active { left: 0; }
+        .sidebar a { display: flex; align-items: center; gap: 14px; padding: 12px 16px; margin-bottom: 8px; color: var(--sub); text-decoration: none; border-radius: 14px; }
+        .sidebar a:hover { background: var(--accent); color: #fff; }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(2px); display: none; z-index: 1100; }
+        .overlay.active { display: block; }
+        .main-container { max-width: 600px; margin: 0 auto; padding: 20px 18px 80px; }
+        .section-title { font-size: 18px; font-weight: 600; margin: 24px 0 12px; color: var(--accent); }
+        .card { background: var(--card); backdrop-filter: blur(4px); border-radius: 24px; padding: 20px; border: 1px solid var(--border); margin-bottom: 16px; }
+        .btn { background: linear-gradient(135deg, var(--accent), #2c6e9e); border: none; padding: 12px 24px; border-radius: 40px; color: white; font-weight: 600; cursor: pointer; width: 100%; }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .btn-whatsapp { background: linear-gradient(135deg, #25D366, #128C7E); }
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: var(--nav); display: flex; justify-content: space-around; padding: 8px 12px 12px; border-top: 1px solid var(--border); z-index: 100; }
+        .nav-item { text-align: center; font-size: 12px; color: var(--sub); text-decoration: none; }
+        .nav-item span { font-size: 26px; display: block; }
+        .nav-item.active-nav { color: var(--accent); }
+        input, textarea { width: 100%; padding: 12px 16px; background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 16px; color: var(--text); outline: none; }
+        .contact-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .contact-card { text-align: center; padding: 16px 8px; cursor: pointer; transition: 0.2s; }
+        .contact-card:hover { transform: translateY(-4px); border-color: var(--accent); }
+        .whatsapp-card { border-color: #25D366; }
+        .whatsapp-card:hover { border-color: #25D366; background: rgba(37,211,102,0.1); }
+        .chatbot-container { position: fixed; bottom: 90px; right: 20px; z-index: 1000; }
+        .chatbot-toggle { width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), #2c6e9e); display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 20px rgba(0,195,255,0.3); transition: 0.3s; }
+        .chatbot-toggle:hover { transform: scale(1.1); }
+        .chatbot-window { position: absolute; bottom: 80px; right: 0; width: 320px; height: 450px; background: var(--card-solid); border-radius: 24px; border: 1px solid var(--accent); display: none; flex-direction: column; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
+        .chatbot-window.active { display: flex; }
+        .chatbot-header { padding: 16px; background: linear-gradient(135deg, var(--accent), #2c6e9e); display: flex; justify-content: space-between; align-items: center; color: white; }
+        .chatbot-header h4 { font-weight: 600; }
+        .chatbot-close { cursor: pointer; font-size: 20px; }
+        .chatbot-messages { flex: 1; padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+        .message { max-width: 80%; padding: 10px 14px; border-radius: 18px; font-size: 13px; }
+        .message.bot { background: var(--card); align-self: flex-start; border-bottom-left-radius: 4px; }
+        .message.user { background: var(--accent); color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
+        .chatbot-input { padding: 12px; border-top: 1px solid var(--border); display: flex; gap: 8px; }
+        .chatbot-input input { flex: 1; padding: 10px 14px; border-radius: 20px; }
+        .chatbot-input button { padding: 10px 16px; border-radius: 20px; background: var(--accent); border: none; color: white; cursor: pointer; }
+        .typing-indicator { display: flex; gap: 4px; padding: 10px 14px; }
+        .typing-indicator span { width: 8px; height: 8px; background: var(--sub); border-radius: 50%; animation: typing 1.4s infinite; }
+        .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes typing { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-8px); } }
+        .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: var(--card-solid); color: white; padding: 12px 24px; border-radius: 40px; z-index: 9999; border: 1px solid var(--accent); }
+    </style>
+</head>
+<body>
+    <div class="sidebar" id="sidebar">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+            <img src="/images/logo.png" style="width:28px;height:28px;" onerror="this.src='https://via.placeholder.com/28/00c3ff/ffffff?text=SC'">
+            <h3 style="color:var(--accent);margin:0;">Shubham Computers</h3>
+        </div>
+        <a href="/home"><span class="material-symbols-rounded">home</span>Home</a>
+        <a href="/profile"><span class="material-symbols-rounded">person</span>My Profile</a>
+        <a href="/requests"><span class="material-symbols-rounded">history</span>My Requests</a>
+        <a href="/upload-page"><span class="material-symbols-rounded">cloud_upload</span>Upload</a>
+        <a href="/payments"><span class="material-symbols-rounded">payments</span>Payments</a>
+        <a href="/apply"><span class="material-symbols-rounded">description</span>Apply</a>
+        <a href="/notifications"><span class="material-symbols-rounded">notifications</span>Notifications
+            <% if (typeof unreadCount !== 'undefined' && unreadCount > 0) { %>
+            <span style="background:var(--danger);color:white;padding:2px 8px;border-radius:20px;font-size:11px;margin-left:auto;"><%= unreadCount %></span>
+            <% } %>
+        </a>
+        <a href="/certificates"><span class="material-symbols-rounded">verified</span>My Certificates</a>
+        <a href="/announcements"><span class="material-symbols-rounded">campaign</span>Announcements</a>
+        <a href="/messages"><span class="material-symbols-rounded">mail</span>My Messages</a>
+        <a href="/support"><span class="material-symbols-rounded">support_agent</span>Support</a>
+        <a href="/logout" style="margin-top:30px;color:var(--danger);"><span class="material-symbols-rounded">logout</span>Logout</a>
+    </div>
+    <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+    
+    <div class="header">
+        <span class="material-symbols-rounded menu-btn" onclick="toggleSidebar()">menu</span>
+        <div class="header-right">
+            <a href="/notifications" class="notification-bell">
+                <span class="material-symbols-rounded">notifications</span>
+                <% if (typeof unreadCount !== 'undefined' && unreadCount > 0) { %>
+                <span class="badge-notification"><%= unreadCount > 9 ? '9+' : unreadCount %></span>
+                <% } %>
+            </a>
+            <div class="profile" onclick="window.location.href='/profile'">
+                <span><%= user.fullName %></span>
+                <img src="<%= user.profileImage || 'https://i.pravatar.cc/100?img=7' %>" alt="avatar">
+            </div>
+        </div>
+    </div>
+    
+    <div class="main-container">
+        <div class="section-title">📞 Support & Help</div>
+        
+        <!-- Contact Options Grid -->
+        <div class="contact-grid">
+            <div class="card contact-card" onclick="window.location.href='tel:+917517916386'">
+                <span class="material-symbols-rounded" style="font-size:32px;color:var(--accent);">call</span>
+                <div style="font-weight:600;">Call</div>
+                <div style="font-size:11px;color:var(--sub);">+91 75179 16386</div>
+            </div>
+            <div class="card contact-card" onclick="window.location.href='mailto:support@shubhamcomputers.com'">
+                <span class="material-symbols-rounded" style="font-size:32px;color:var(--accent);">mail</span>
+                <div style="font-weight:600;">Email</div>
+                <div style="font-size:11px;color:var(--sub);">24/7 Support</div>
+            </div>
+            <div class="card contact-card whatsapp-card" onclick="openWhatsApp()">
+                <span style="font-size:32px;">💬</span>
+                <div style="font-weight:600;">WhatsApp</div>
+                <div style="font-size:11px;color:var(--sub);">Quick Chat</div>
+            </div>
+        </div>
+        
+        <!-- WhatsApp Quick Support -->
+        <div class="card" style="background:linear-gradient(135deg,rgba(37,211,102,0.1),rgba(18,140,126,0.1));border-color:#25D366;">
+            <div style="display:flex;align-items:center;gap:15px;">
+                <span style="font-size:48px;">💬</span>
+                <div style="flex:1;">
+                    <div style="font-weight:600;">WhatsApp Support</div>
+                    <p style="font-size:13px;color:var(--sub);">Get instant help via WhatsApp</p>
+                </div>
+                <button class="btn btn-whatsapp" style="width:auto;padding:10px 20px;" onclick="openWhatsApp()">Chat Now</button>
+            </div>
+        </div>
+        
+        <!-- Send Message Form -->
+        <div class="section-title">📝 Send Message</div>
+        <div class="card">
+            <form id="supportForm">
+                <div style="margin-bottom:16px;">
+                    <label style="display:block;margin-bottom:8px;color:var(--sub);">Subject</label>
+                    <input type="text" id="subject" placeholder="Enter subject" value="General Inquiry" required>
+                </div>
+                <div style="margin-bottom:16px;">
+                    <label style="display:block;margin-bottom:8px;color:var(--sub);">Message</label>
+                    <textarea id="message" rows="4" placeholder="Describe your issue in detail..." required></textarea>
+                </div>
+                <button type="submit" class="btn" id="sendMessageBtn">Send Message</button>
+            </form>
+        </div>
+        
+        <!-- FAQ Section -->
+        <div class="section-title">❓ Frequently Asked Questions</div>
+        <div class="card">
+            <details style="padding:12px 0;border-bottom:1px solid var(--border);">
+                <summary style="cursor:pointer;font-weight:500;">How long does processing take?</summary>
+                <p style="padding:10px 0 10px 20px;color:var(--sub);font-size:14px;">Most documents are processed within 3-5 business days. Some certificates may take longer depending on verification.</p>
+            </details>
+            <details style="padding:12px 0;border-bottom:1px solid var(--border);">
+                <summary style="cursor:pointer;font-weight:500;">What documents are required?</summary>
+                <p style="padding:10px 0 10px 20px;color:var(--sub);font-size:14px;">Requirements vary by service. Visit the Apply page and select a service to see required documents.</p>
+            </details>
+            <details style="padding:12px 0;border-bottom:1px solid var(--border);">
+                <summary style="cursor:pointer;font-weight:500;">Is my payment secure?</summary>
+                <p style="padding:10px 0 10px 20px;color:var(--sub);font-size:14px;">Yes, we use Razorpay and Easebuzz secure payment gateways with encryption.</p>
+            </details>
+            <details style="padding:12px 0;">
+                <summary style="cursor:pointer;font-weight:500;">How to track my application?</summary>
+                <p style="padding:10px 0 10px 20px;color:var(--sub);font-size:14px;">Visit "My Requests" to track all your document requests and their current status.</p>
+            </details>
+        </div>
+    </div>
+    
+    <div class="bottom-nav">
+        <a href="/home" class="nav-item"><span class="material-symbols-rounded">home</span>Home</a>
+        <a href="/apply" class="nav-item"><span class="material-symbols-rounded">description</span>Apply</a>
+        <a href="/requests" class="nav-item"><span class="material-symbols-rounded">history</span>Requests</a>
+        <a href="/profile" class="nav-item"><span class="material-symbols-rounded">person</span>Profile</a>
+    </div>
+    
+    <!-- Chatbot -->
+    <div class="chatbot-container">
+        <div class="chatbot-window" id="chatbotWindow">
+            <div class="chatbot-header">
+                <h4>🤖 Shubham Assistant</h4>
+                <span class="chatbot-close" onclick="toggleChatbot()">✕</span>
+            </div>
+            <div class="chatbot-messages" id="chatMessages">
+                <div class="message bot">👋 Hello! I'm Shubham Assistant. How can I help you today?</div>
+                <div class="message bot">You can ask about:<br>• Document requirements<br>• Processing time<br>• Payment issues<br>• Application status</div>
+            </div>
+            <div class="chatbot-input">
+                <input type="text" id="chatInput" placeholder="Type your message..." onkeypress="handleChatKeyPress(event)">
+                <button onclick="sendChatMessage()">➤</button>
+            </div>
+        </div>
+        <div class="chatbot-toggle" onclick="toggleChatbot()">
+            <span class="material-symbols-rounded">chat</span>
+        </div>
+    </div>
+    
+    <script>
+        function toggleSidebar() { 
+            document.getElementById('sidebar').classList.toggle('active'); 
+            document.getElementById('overlay').classList.toggle('active'); 
+        }
+        
+        function openWhatsApp() { 
+            const phone = '917517916386';
+            const message = encodeURIComponent('Hello Shubham Computer, I need support with...');
+            window.open(`https://wa.me/${phone}?text=${message}`, '_blank');
+        }
+        
+        function showToast(msg, type) { 
+            const t = document.createElement('div'); 
+            t.className = 'toast'; 
+            t.style.background = type === 'success' ? '#2ecc71' : type === 'error' ? '#ff4d4d' : '#00c3ff'; 
+            t.textContent = msg; 
+            document.body.appendChild(t); 
+            setTimeout(() => t.remove(), 3000); 
+        }
+        
+        // Support Form Submission with AJAX
+        document.getElementById('supportForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const subject = document.getElementById('subject').value.trim();
+            const message = document.getElementById('message').value.trim();
+            
+            if (!subject || !message) {
+                showToast('❌ Please fill all fields', 'error');
+                return;
+            }
+            
+            const btn = document.getElementById('sendMessageBtn');
+            const originalText = btn.textContent;
+            btn.textContent = 'Sending...';
+            btn.disabled = true;
+            
+            try {
+                const res = await fetch('/support/send', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ subject, message })
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    showToast('✅ Message sent! We will get back to you soon.', 'success');
+                    document.getElementById('subject').value = 'General Inquiry';
+                    document.getElementById('message').value = '';
+                } else {
+                    showToast('❌ Failed: ' + (data.error || 'Unknown error'), 'error');
+                }
+            } catch (err) {
+                showToast('❌ Error sending message. Please try again.', 'error');
+            } finally {
+                btn.textContent = originalText;
+                btn.disabled = false;
+            }
+        });
+        
+        // Chatbot Functions
+        function toggleChatbot() { 
+            document.getElementById('chatbotWindow').classList.toggle('active'); 
+        }
+        
+        function sendChatMessage() { 
+            const input = document.getElementById('chatInput'); 
+            const message = input.value.trim(); 
+            if (!message) return; 
+            
+            addMessage(message, 'user'); 
+            input.value = ''; 
+            
+            const messagesDiv = document.getElementById('chatMessages');
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'typing-indicator';
+            typingDiv.id = 'typingIndicator';
+            typingDiv.innerHTML = '<span></span><span></span><span></span>';
+            messagesDiv.appendChild(typingDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            
+            setTimeout(() => {
+                typingDiv.remove();
+                const response = getBotResponse(message);
+                addMessage(response, 'bot');
+            }, 1500);
+        }
+        
+        function handleChatKeyPress(event) { 
+            if (event.key === 'Enter') sendChatMessage(); 
+        }
+        
+        function addMessage(text, sender) { 
+            const messagesDiv = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            messageDiv.innerHTML = text.replace(/\n/g, '<br>');
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+        
+        function getBotResponse(message) {
+            const msg = message.toLowerCase();
+            
+            if (msg.includes('document') || msg.includes('required')) {
+                return "📄 Document requirements vary by service. Visit the 'Apply' page, select a service, and you'll see all required documents listed.";
+            } else if (msg.includes('time') || msg.includes('processing') || msg.includes('long')) {
+                return "⏱️ Most certificates take 3-5 business days. Some services like Domicile may take up to 10 days.";
+            } else if (msg.includes('payment') || msg.includes('pay') || msg.includes('razorpay')) {
+                return "💰 We use Razorpay and Easebuzz for secure payments. All transactions are encrypted and safe.";
+            } else if (msg.includes('status') || msg.includes('track') || msg.includes('application')) {
+                return "📊 You can track your application status in the 'My Requests' section. Each request shows its current status.";
+            } else if (msg.includes('fee') || msg.includes('price') || msg.includes('cost')) {
+                return "💵 Processing fee is ₹50 for most services. The exact fee is shown when you select a service.";
+            } else if (msg.includes('contact') || msg.includes('call') || msg.includes('phone')) {
+                return "📞 You can call us at +91 75179 16386 (Mon-Sat, 10AM-7PM) or WhatsApp us for quick support!";
+            } else if (msg.includes('hello') || msg.includes('hi') || msg.includes('hey')) {
+                return "👋 Hello! How can I help you with Shubham Computer services today?";
+            } else if (msg.includes('thanks') || msg.includes('thank you')) {
+                return "😊 You're welcome! Is there anything else I can help you with?";
+            } else if (msg.includes('email') || msg.includes('mail')) {
+                return "📧 You can email us at support@shubhamcomputers.com. We'll respond within 24 hours.";
+            } else if (msg.includes('whatsapp')) {
+                return "💬 Click the WhatsApp button to chat with us instantly on WhatsApp!";
+            } else {
+                return "I'm here to help! You can ask about document requirements, processing time, fees, or application status. For more complex issues, please call, email, or WhatsApp us.";
+            }
+        }
+        
+        // Update unread notification count
+        async function updateUnreadCount() { 
+            try { 
+                const r = await fetch('/api/unread-count'); 
+                const d = await r.json(); 
+                const b = document.querySelector('.badge-notification'); 
+                if (b) { 
+                    if (d.count > 0) { 
+                        b.textContent = d.count > 9 ? '9+' : d.count; 
+                        b.style.display = 'flex'; 
+                    } else { 
+                        b.style.display = 'none'; 
+                    } 
+                } 
+            } catch(e) {} 
+        }
+        
+        setInterval(updateUnreadCount, 30000); 
+        updateUnreadCount();
+    </script>
+</body>
+</html>

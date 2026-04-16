@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>403 - Access Denied</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { min-height: 100vh; display: flex; justify-content: center; align-items: center; background: radial-gradient(circle at top, #0f2027, #000000); color: #fff; text-align: center; }
+        .error-code { font-size: 120px; font-weight: 700; color: #ff4757; text-shadow: 0 0 30px #ff475766; }
+        .error-message { font-size: 24px; margin-bottom: 20px; }
+        .error-description { color: #aaa; margin-bottom: 30px; }
+        .btn { display: inline-block; padding: 12px 30px; background: linear-gradient(135deg, #ff4757, #ff6b81); color: white; text-decoration: none; border-radius: 40px; font-weight: 500; }
+    </style>
+</head>
+<body>
+    <div style="padding:40px;"><div class="error-code">403</div><div class="error-message">Access Denied</div><div class="error-description"><%= message || 'You do not have permission to access this page.' %></div><a href="/home" class="btn">Go Back Home</a></div>
+</body>
+</html>

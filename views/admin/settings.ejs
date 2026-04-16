@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet" />
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        :root { --bg: #0f2027; --bg2: #000000; --card: #1e2a32; --text: #ffffff; --sub: #aaaaaa; --accent: #ff4757; --nav: #0c1a20; --border: rgba(255,255,255,0.08); --success: #2ecc71; --danger: #ff4d4d; --warning: #ffaa44; --info: #00c3ff; }
+        body { background: radial-gradient(circle at 10% 20%, var(--bg), var(--bg2)); color: var(--text); min-height: 100vh; }
+        .admin-layout { display: flex; min-height: 100vh; }
+        .admin-sidebar { width: 260px; background: var(--nav); border-right: 1px solid var(--border); padding: 24px 16px; position: fixed; height: 100vh; overflow-y: auto; }
+        .admin-main { margin-left: 260px; flex: 1; padding: 24px; }
+        .sidebar-header { padding-bottom: 24px; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
+        .sidebar-header h2 { color: var(--accent); }
+        .nav-link { display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: var(--sub); text-decoration: none; border-radius: 12px; }
+        .nav-link:hover, .nav-link.active { background: var(--accent); color: white; }
+        .nav-link span { font-size: 22px; }
+        .settings-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
+        .settings-card { background: var(--card); border-radius: 16px; padding: 24px; border: 1px solid var(--border); }
+        .card-title { font-size: 18px; font-weight: 600; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; color: var(--sub); font-size: 13px; }
+        input, textarea, select { width: 100%; padding: 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 12px; color: var(--text); outline: none; }
+        input:focus, select:focus { border-color: var(--accent); }
+        .toggle-switch { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; }
+        .switch { width: 50px; height: 26px; background: #555; border-radius: 30px; position: relative; cursor: pointer; transition: 0.3s; }
+        .switch.active { background: var(--success); }
+        .switch::before { content: ""; position: absolute; width: 22px; height: 22px; background: white; border-radius: 50%; top: 2px; left: 2px; transition: 0.2s; }
+        .switch.active::before { left: 26px; }
+        .btn-save { padding: 14px 28px; background: var(--accent); border: none; color: white; border-radius: 40px; cursor: pointer; font-weight: 500; font-size: 16px; }
+        .btn-save:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(255,71,87,0.3); }
+        .gateway-selector { display: flex; gap: 10px; margin: 20px 0; }
+        .gateway-option { flex: 1; padding: 15px 10px; background: rgba(0,0,0,0.2); border: 2px solid var(--border); border-radius: 12px; text-align: center; cursor: pointer; transition: 0.3s; }
+        .gateway-option.active { border-color: var(--accent); background: rgba(255,71,87,0.1); }
+        .gateway-option h4 { margin: 8px 0 4px; font-size: 14px; }
+        .gateway-option p { font-size: 11px; color: var(--sub); }
+        .gateway-settings { display: none; margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border); }
+        .gateway-settings.active { display: block; }
+        .info-box { background: rgba(0,195,255,0.1); padding: 15px; border-radius: 12px; margin-top: 20px; border: 1px solid rgba(0,195,255,0.2); }
+        .info-box p { font-size: 12px; color: var(--sub); margin-bottom: 5px; }
+        .full-width { grid-column: span 2; }
+        .badge { padding: 2px 8px; border-radius: 20px; font-size: 10px; }
+        .badge-success { background: var(--success); color: white; }
+        .badge-warning { background: var(--warning); color: black; }
+    </style>
+</head>
+<body>
+    <div class="admin-layout">
+        <div class="admin-sidebar">
+            <div class="sidebar-header"><h2>Shubham Admin</h2><p><%= user.fullName %></p></div>
+            <nav>
+                <a href="/admin/dashboard" class="nav-link"><span class="material-symbols-rounded">dashboard</span>Dashboard</a>
+                <a href="/admin/services" class="nav-link "><span class="material-symbols-rounded">settings</span>Services</a>
+                <a href="/admin/users" class="nav-link "><span class="material-symbols-rounded">group</span>Users</a>
+                <a href="/admin/requests" class="nav-link"><span class="material-symbols-rounded">assignment</span>Requests</a>
+                <a href="/admin/files" class="nav-link"><span class="material-symbols-rounded">folder</span>Files</a>
+                <a href="/admin/announcements" class="nav-link"><span class="material-symbols-rounded">campaign</span>Announcements</a>
+                <a href="/admin/messages" class="nav-link"><span class="material-symbols-rounded">mail</span>Messages</a>
+                <a href="/admin/settings" class="nav-link active"><span class="material-symbols-rounded">tune</span>Settings</a>
+                <div style="margin-top:30px;"><a href="/home" class="nav-link">Back To Website</a><a href="/logout" class="nav-link" style="color:var(--danger);">Logout</a></div>
+            </nav>
+        </div>
+        
+        <div class="admin-main">
+            <h1 style="margin-bottom:8px;">Settings</h1>
+            <p style="color:var(--sub);margin-bottom:30px;">Configure system settings and payment gateways</p>
+            
+            <!-- Payment Gateway Section (Full Width) -->
+            <div class="settings-card" style="margin-bottom:24px;">
+                <div class="card-title"><span class="material-symbols-rounded">payments</span>Payment Gateway Configuration</div>
+                
+                <!-- Master Payment Toggle -->
+                <div class="toggle-switch">
+                    <span><strong>Enable Payments</strong><br><small style="color:var(--sub);">Turn off to allow free applications</small></span>
+                    <div class="switch active" id="paymentEnabledToggle" onclick="togglePaymentEnabled()"></div>
+                </div>
+                <input type="hidden" id="paymentEnabled" value="true">
+                
+                <!-- Gateway Selector -->
+                <div style="margin: 25px 0 15px;">
+                    <label>Select Active Payment Gateway</label>
+                    <div class="gateway-selector">
+                        <div class="gateway-option active" id="gatewayRazorpay" onclick="selectGateway('razorpay')">
+                            <span style="font-size:28px;">💳</span>
+                            <h4>Razorpay</h4>
+                            <p>Popular Indian gateway</p>
+                        </div>
+                        <div class="gateway-option" id="gatewayEasebuzz" onclick="selectGateway('easebuzz')">
+                            <span style="font-size:28px;">🏦</span>
+                            <h4>Easebuzz</h4>
+                            <p>Secure & reliable</p>
+                        </div>
+                        <div class="gateway-option" id="gatewayNone" onclick="selectGateway('none')">
+                            <span style="font-size:28px;">🚫</span>
+                            <h4>No Payment</h4>
+                            <p>Free applications</p>
+                        </div>
+                    </div>
+                </div>
+                <input type="hidden" id="activeGateway" value="razorpay">
+                
+                <!-- Razorpay Settings -->
+                <div class="gateway-settings active" id="razorpaySettings">
+                    <h4 style="margin-bottom:15px;color:var(--info);">💳 Razorpay Configuration</h4>
+                    <div class="toggle-switch">
+                        <span>Enable Razorpay</span>
+                        <div class="switch active" id="razorpayEnabledToggle" onclick="toggleRazorpayEnabled()"></div>
+                    </div>
+                    <input type="hidden" id="razorpayEnabled" value="true">
+                    <div class="form-group"><label>Key ID</label><input type="text" id="razorpayKeyId" placeholder="rzp_test_..."></div>
+                    <div class="form-group"><label>Key Secret</label><input type="password" id="razorpayKeySecret" placeholder="Your secret key"></div>
+                    <div class="toggle-switch">
+                        <span>Test Mode</span>
+                        <div class="switch active" id="razorpayTestModeToggle" onclick="toggleRazorpayTestMode()"></div>
+                    </div>
+                    <input type="hidden" id="razorpayTestMode" value="true">
+                </div>
+                
+                <!-- Easebuzz Settings -->
+                <div class="gateway-settings" id="easebuzzSettings">
+                    <h4 style="margin-bottom:15px;color:var(--info);">🏦 Easebuzz Configuration</h4>
+                    <div class="toggle-switch">
+                        <span>Enable Easebuzz</span>
+                        <div class="switch" id="easebuzzEnabledToggle" onclick="toggleEasebuzzEnabled()"></div>
+                    </div>
+                    <input type="hidden" id="easebuzzEnabled" value="false">
+                    <div class="form-group"><label>Merchant Key</label><input type="text" id="easebuzzMerchantKey" placeholder="Your merchant key"></div>
+                    <div class="form-group"><label>Salt Key</label><input type="password" id="easebuzzSaltKey" placeholder="Your salt key"></div>
+                    <div class="form-group">
+                        <label>Environment</label>
+                        <select id="easebuzzEnv">
+                            <option value="test">Test (Sandbox)</option>
+                            <option value="production">Production (Live)</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="info-box">
+                    <p><strong>📌 Note:</strong></p>
+                    <p>• Razorpay Test Card: 4111 1111 1111 1111</p>
+                    <p>• Easebuzz Test Card: 5555 5555 5555 4444</p>
+                    <p>• When payments disabled, users can apply for free.</p>
+                </div>
+            </div>
+            
+            <div class="settings-grid">
+                <!-- General Settings -->
+                <div class="settings-card">
+                    <div class="card-title"><span class="material-symbols-rounded">business</span>General Settings</div>
+                    <div class="form-group"><label>Site Name</label><input value="Shubham Computer" id="siteName"></div>
+                    <div class="form-group"><label>Contact Email</label><input value="support@shubhamcomputer.com" id="contactEmail"></div>
+                    <div class="form-group"><label>Contact Phone</label><input value="+91 88888 99999" id="contactPhone"></div>
+                </div>
+                
+                <!-- Document Settings -->
+                <div class="settings-card">
+                    <div class="card-title"><span class="material-symbols-rounded">description</span>Document Settings</div>
+                    <div class="form-group"><label>Default Processing Fee (₹)</label><input type="number" value="50" id="defaultFee"></div>
+                    <div class="form-group"><label>Max File Size (MB)</label><input type="number" value="10" id="maxFileSize"></div>
+                </div>
+                
+                <!-- Notification Settings -->
+                <div class="settings-card">
+                    <div class="card-title"><span class="material-symbols-rounded">notifications</span>Notification Settings</div>
+                    <div class="toggle-switch"><span>Email Notifications</span><div class="switch active" id="emailNotifToggle" onclick="this.classList.toggle('active')"></div></div>
+                    <div class="toggle-switch"><span>SMS Notifications</span><div class="switch" id="smsNotifToggle" onclick="this.classList.toggle('active')"></div></div>
+                </div>
+                
+                <!-- Security Settings -->
+                <div class="settings-card">
+                    <div class="card-title"><span class="material-symbols-rounded">security</span>Security</div>
+                    <div class="toggle-switch"><span>Two-Factor Authentication</span><div class="switch" id="twoFAToggle" onclick="this.classList.toggle('active')"></div></div>
+                    <div class="form-group"><label>Max Login Attempts</label><input type="number" value="5" id="maxLoginAttempts"></div>
+                </div>
+            </div>
+            
+            <!-- Save Button -->
+            <div style="margin-top:24px;display:flex;gap:15px;">
+                <button class="btn-save" onclick="saveAllSettings()" style="flex:1;">💾 Save All Settings</button>
+            </div>
+            
+            <!-- Danger Zone -->
+            <div class="settings-card" style="margin-top:24px;border-color:var(--danger);">
+                <div class="card-title" style="color:var(--danger);"><span class="material-symbols-rounded">warning</span>Danger Zone</div>
+                <p style="color:var(--sub);margin-bottom:20px;">Irreversible actions. Please proceed with caution.</p>
+                <button class="btn-save" style="background:var(--danger);" onclick="if(confirm('Reset system? This cannot be undone!')) resetSystem()">Reset System</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let activeGateway = 'razorpay';
+        
+        function selectGateway(gateway) {
+            activeGateway = gateway;
+            document.getElementById('activeGateway').value = gateway;
+            
+            document.querySelectorAll('.gateway-option').forEach(opt => opt.classList.remove('active'));
+            document.getElementById('gateway' + gateway.charAt(0).toUpperCase() + gateway.slice(1)).classList.add('active');
+            
+            document.querySelectorAll('.gateway-settings').forEach(s => s.classList.remove('active'));
+            if (gateway === 'razorpay') document.getElementById('razorpaySettings').classList.add('active');
+            else if (gateway === 'easebuzz') document.getElementById('easebuzzSettings').classList.add('active');
+        }
+        
+        function togglePaymentEnabled() {
+            const toggle = document.getElementById('paymentEnabledToggle');
+            const input = document.getElementById('paymentEnabled');
+            toggle.classList.toggle('active');
+            input.value = toggle.classList.contains('active') ? 'true' : 'false';
+        }
+        
+        function toggleRazorpayEnabled() {
+            const toggle = document.getElementById('razorpayEnabledToggle');
+            const input = document.getElementById('razorpayEnabled');
+            toggle.classList.toggle('active');
+            input.value = toggle.classList.contains('active') ? 'true' : 'false';
+        }
+        
+        function toggleRazorpayTestMode() {
+            const toggle = document.getElementById('razorpayTestModeToggle');
+            const input = document.getElementById('razorpayTestMode');
+            toggle.classList.toggle('active');
+            input.value = toggle.classList.contains('active') ? 'true' : 'false';
+        }
+        
+        function toggleEasebuzzEnabled() {
+            const toggle = document.getElementById('easebuzzEnabledToggle');
+            const input = document.getElementById('easebuzzEnabled');
+            toggle.classList.toggle('active');
+            input.value = toggle.classList.contains('active') ? 'true' : 'false';
+        }
+        
+        async function loadSettings() {
+            try {
+                const res = await fetch('/api/admin/payment-settings');
+                const data = await res.json();
+                if (data.success) {
+                    const s = data.settings;
+                    document.getElementById('paymentEnabled').value = s.paymentEnabled;
+                    if (!s.paymentEnabled) document.getElementById('paymentEnabledToggle').classList.remove('active');
+                    
+                    selectGateway(s.activeGateway);
+                    
+                    document.getElementById('razorpayEnabled').value = s.razorpay.enabled;
+                    if (!s.razorpay.enabled) document.getElementById('razorpayEnabledToggle').classList.remove('active');
+                    document.getElementById('razorpayKeyId').value = s.razorpay.keyId || '';
+                    document.getElementById('razorpayKeySecret').value = s.razorpay.keySecret || '';
+                    
+                    document.getElementById('easebuzzEnabled').value = s.easebuzz.enabled;
+                    if (s.easebuzz.enabled) document.getElementById('easebuzzEnabledToggle').classList.add('active');
+                    document.getElementById('easebuzzMerchantKey').value = s.easebuzz.merchantKey || '';
+                    document.getElementById('easebuzzSaltKey').value = s.easebuzz.saltKey || '';
+                    document.getElementById('easebuzzEnv').value = s.easebuzz.env || 'test';
+                }
+            } catch(e) {}
+        }
+        
+        async function saveAllSettings() {
+            const paymentData = {
+                paymentEnabled: document.getElementById('paymentEnabled').value === 'true',
+                activeGateway: document.getElementById('activeGateway').value,
+                razorpay: {
+                    enabled: document.getElementById('razorpayEnabled').value === 'true',
+                    keyId: document.getElementById('razorpayKeyId').value,
+                    keySecret: document.getElementById('razorpayKeySecret').value,
+                    testMode: document.getElementById('razorpayTestMode').value === 'true'
+                },
+                easebuzz: {
+                    enabled: document.getElementById('easebuzzEnabled').value === 'true',
+                    merchantKey: document.getElementById('easebuzzMerchantKey').value,
+                    saltKey: document.getElementById('easebuzzSaltKey').value,
+                    env: document.getElementById('easebuzzEnv').value,
+                    testMode: document.getElementById('easebuzzEnv').value === 'test'
+                }
+            };
+            
+            try {
+                const res = await fetch('/api/admin/payment-settings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(paymentData)
+                });
+                const result = await res.json();
+                if (result.success) {
+                    alert('✅ Payment settings saved successfully!');
+                } else {
+                    alert('❌ Failed to save payment settings');
+                }
+            } catch(e) {
+                alert('❌ Error saving settings');
+            }
+            
+            // Save general settings
+            alert('✅ All settings saved! (General settings UI ready for backend integration)');
+        }
+        
+        function resetSystem() {
+            if (confirm('Type "RESET" to confirm system reset:')) {
+                alert('System reset initiated');
+            }
+        }
+        
+        loadSettings();
+    </script>
+</body>
+</html>

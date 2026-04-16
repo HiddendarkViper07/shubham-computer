@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service Configuration - Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet" />
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        :root { --bg: #0f2027; --bg2: #000000; --card: #1e2a32; --text: #ffffff; --sub: #aaaaaa; --accent: #ff4757; --nav: #0c1a20; --border: rgba(255,255,255,0.08); --success: #2ecc71; --danger: #ff4d4d; }
+        body { background: radial-gradient(circle at 10% 20%, var(--bg), var(--bg2)); color: var(--text); min-height: 100vh; }
+        .admin-layout { display: flex; min-height: 100vh; }
+        .admin-sidebar { width: 260px; background: var(--nav); border-right: 1px solid var(--border); padding: 24px 16px; position: fixed; height: 100vh; overflow-y: auto; }
+        .admin-main { margin-left: 260px; flex: 1; padding: 24px; }
+        .sidebar-header { padding-bottom: 24px; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
+        .sidebar-header h2 { color: var(--accent); font-size: 20px; }
+        .nav-link { display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: var(--sub); text-decoration: none; border-radius: 12px; margin-bottom: 4px; }
+        .nav-link:hover, .nav-link.active { background: var(--accent); color: white; }
+        .nav-link span { font-size: 22px; }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .btn-primary { padding: 10px 20px; background: var(--accent); border: none; color: white; border-radius: 40px; cursor: pointer; }
+        .service-card { background: var(--card); border-radius: 16px; padding: 20px; border: 1px solid var(--border); margin-bottom: 16px; }
+        .doc-tag { display: inline-block; padding: 4px 12px; background: rgba(0,195,255,0.1); border-radius: 20px; font-size: 12px; margin: 4px; }
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 1500; }
+        .modal-content { background: var(--card); max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto; border-radius: 24px; padding: 24px; border: 1px solid var(--accent); }
+        input, textarea { width: 100%; padding: 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 12px; color: var(--text); margin-bottom: 16px; }
+        label { display: block; margin-bottom: 8px; color: var(--sub); }
+        .toggle-switch { width: 40px; height: 20px; background: #555; border-radius: 20px; position: relative; cursor: pointer; display: inline-block; }
+        .toggle-switch.active { background: var(--success); }
+        .toggle-switch::before { content: ""; position: absolute; width: 16px; height: 16px; background: white; border-radius: 50%; top: 2px; left: 2px; transition: 0.2s; }
+        .toggle-switch.active::before { left: 22px; }
+        .search-box { display: flex; align-items: center; background: var(--card); border: 1px solid var(--border); border-radius: 40px; padding: 4px 4px 4px 20px; margin-bottom: 24px; }
+        .search-box input { flex: 1; border: none; background: transparent; padding: 10px 0; margin: 0; }
+        .search-box button { padding: 10px 24px; border-radius: 40px; background: var(--accent); border: none; color: white; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="admin-layout">
+        <div class="admin-sidebar">
+            <div class="sidebar-header"><h2>Shubham Admin</h2><p><%= user.fullName %></p></div>
+            <nav>
+                <a href="/admin/dashboard" class="nav-link"><span class="material-symbols-rounded">dashboard</span>Dashboard</a>
+                <a href="/admin/services" class="nav-link active"><span class="material-symbols-rounded">settings</span>Services</a>
+                <a href="/admin/users" class="nav-link"><span class="material-symbols-rounded">group</span>Users</a>
+                <a href="/admin/requests" class="nav-link"><span class="material-symbols-rounded">assignment</span>Requests</a>
+                <a href="/admin/files" class="nav-link"><span class="material-symbols-rounded">folder</span>Files</a>
+                <a href="/admin/announcements" class="nav-link"><span class="material-symbols-rounded">campaign</span>Announcements</a>
+                <a href="/admin/messages" class="nav-link"><span class="material-symbols-rounded">mail</span>Messages</a>
+                <a href="/admin/settings" class="nav-link"><span class="material-symbols-rounded">tune</span>Settings</a>
+                <div style="margin-top:30px;"><a href="/home" class="nav-link">Back To Website</a><a href="/logout" class="nav-link" style="color:var(--danger);">Logout</a></div>
+            </nav>
+        </div>
+        <div class="admin-main">
+            <div class="page-header"><div><h1>Service Configuration</h1><p style="color:var(--sub);">Manage document requirements</p></div><button class="btn-primary" onclick="openServiceModal()">+ Add Service</button></div>
+            <div class="search-box"><span class="material-symbols-rounded" style="color:var(--sub);margin-right:10px;">search</span><input type="text" id="adminSearchInput" placeholder="Search services..." onkeyup="filterAdminServices()"><button onclick="filterAdminServices()">Search</button></div>
+            <div id="servicesList"></div>
+        </div>
+    </div>
+    <div class="modal" id="serviceModal"><div class="modal-content"><h3 id="modalTitle">Add Service</h3><form id="serviceForm"><input type="hidden" id="serviceId"><label>Service Name *</label><input type="text" id="serviceName" required><label>Description</label><textarea id="description" rows="2"></textarea><label>Processing Fee (₹)</label><input type="number" id="processingFee" value="50"><label>Estimated Days</label><input type="number" id="estimatedDays" value="5"><label>Display Order</label><input type="number" id="displayOrder" value="0"><div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;"><label>Active</label><div class="toggle-switch active" id="isActiveToggle" onclick="toggleActive()"></div><input type="hidden" id="isActive" value="true"></div><label>Required Documents</label><div id="documentsList"></div><button type="button" class="btn-primary" style="width:100%;margin-bottom:16px;" onclick="addDocumentField()">+ Add Document</button><div style="display:flex;gap:12px;"><button type="button" class="btn-primary" style="background:transparent;border:1px solid var(--border);" onclick="closeServiceModal()">Cancel</button><button type="submit" class="btn-primary">Save</button></div></form></div></div>
+    <script>
+        let serviceConfigs=[],currentDocuments=[];
+        async function loadServices(){try{const r=await fetch('/api/admin/service-configs');serviceConfigs=await r.json();renderFilteredServices(serviceConfigs);}catch(e){}}
+        function renderFilteredServices(c){const d=document.getElementById('servicesList');if(!c.length){d.innerHTML='<div class="service-card" style="text-align:center;padding:60px;">No services</div>';return;}d.innerHTML=c.sort((a,b)=>a.displayOrder-b.displayOrder).map(s=>`<div class="service-card"><div style="display:flex;justify-content:space-between;"><div><h3>${s.serviceName}</h3><p style="color:var(--sub);">${s.description||''}</p><div>${s.requiredDocuments.map(d=>`<span class="doc-tag">📄 ${d.name}${d.isRequired?'*':''}</span>`).join('')}</div><div style="display:flex;gap:20px;margin-top:10px;"><span>💰 ₹${s.processingFee}</span><span>⏱️ ${s.estimatedDays} days</span><span>${s.isActive?'✅ Active':'❌ Inactive'}</span></div></div><div><button onclick="editService(${JSON.stringify(s).replace(/"/g,'&quot;')})">Edit</button><button style="color:var(--danger);" onclick="deleteService('${s._id}')">Delete</button></div></div></div>`).join('');}
+        function filterAdminServices(){const t=document.getElementById('adminSearchInput').value.toLowerCase();renderFilteredServices(serviceConfigs.filter(s=>s.serviceName.toLowerCase().includes(t)||(s.description||'').toLowerCase().includes(t)));}
+        function openServiceModal(){document.getElementById('modalTitle').innerText='Add Service';document.getElementById('serviceId').value='';document.getElementById('serviceName').value='';document.getElementById('description').value='';document.getElementById('processingFee').value='50';document.getElementById('estimatedDays').value='5';document.getElementById('displayOrder').value=serviceConfigs.length;document.getElementById('isActiveToggle').classList.add('active');document.getElementById('isActive').value='true';currentDocuments=[];renderDocumentFields();document.getElementById('serviceModal').style.display='flex';}
+        function editService(s){document.getElementById('modalTitle').innerText='Edit Service';document.getElementById('serviceId').value=s._id;document.getElementById('serviceName').value=s.serviceName;document.getElementById('description').value=s.description||'';document.getElementById('processingFee').value=s.processingFee;document.getElementById('estimatedDays').value=s.estimatedDays;document.getElementById('displayOrder').value=s.displayOrder;const t=document.getElementById('isActiveToggle');s.isActive?t.classList.add('active'):t.classList.remove('active');document.getElementById('isActive').value=s.isActive;currentDocuments=s.requiredDocuments||[];renderDocumentFields();document.getElementById('serviceModal').style.display='flex';}
+        function closeServiceModal(){document.getElementById('serviceModal').style.display='none';}
+        function toggleActive(){const t=document.getElementById('isActiveToggle'),i=document.getElementById('isActive');t.classList.toggle('active');i.value=t.classList.contains('active')?'true':'false';}
+        function renderDocumentFields(){const c=document.getElementById('documentsList');if(!currentDocuments.length){c.innerHTML='<p style="color:var(--sub);">No documents</p>';return;}c.innerHTML=currentDocuments.map((d,i)=>`<div style="background:rgba(0,0,0,0.2);padding:16px;border-radius:12px;margin-bottom:16px;"><div style="display:flex;gap:10px;"><input value="${d.name}" placeholder="Document name" onchange="updateDocument(${i},'name',this.value)" style="flex:1;"><button type="button" onclick="removeDocument(${i})" style="background:none;border:none;color:var(--danger);">✕</button></div><div style="display:flex;gap:20px;margin-top:10px;"><label><input type="checkbox" ${d.isRequired?'checked':''} onchange="updateDocument(${i},'isRequired',this.checked)"> Required</label><label>Max Size: <input type="number" value="${d.maxSize||2}" style="width:80px;" onchange="updateDocument(${i},'maxSize',this.value)"> MB</label></div></div>`).join('');}
+        function addDocumentField(){currentDocuments.push({name:'New Document',isRequired:true,maxSize:2});renderDocumentFields();}
+        function updateDocument(i,f,v){currentDocuments[i][f]=f==='isRequired'?v:f==='maxSize'?parseInt(v)||2:v;}
+        function removeDocument(i){currentDocuments.splice(i,1);renderDocumentFields();}
+        document.getElementById('serviceForm').addEventListener('submit',async(e)=>{e.preventDefault();const d={serviceName:document.getElementById('serviceName').value,description:document.getElementById('description').value,requiredDocuments:currentDocuments,processingFee:parseInt(document.getElementById('processingFee').value)||50,estimatedDays:parseInt(document.getElementById('estimatedDays').value)||5,displayOrder:parseInt(document.getElementById('displayOrder').value)||0,isActive:document.getElementById('isActive').value==='true'};try{const r=await fetch('/api/admin/service-configs',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)});const j=await r.json();if(j.success){alert('✅ Saved!');closeServiceModal();loadServices();}else alert('❌ Failed');}catch(e){alert('Error');}});
+        async function deleteService(id){if(!confirm('Delete?'))return;try{await fetch('/api/admin/service-configs/'+id,{method:'DELETE'});loadServices();}catch(e){}}
+        loadServices();
+    </script>
+</body>
+</html>

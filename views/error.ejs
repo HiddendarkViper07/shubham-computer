@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Server Error</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { min-height: 100vh; display: flex; justify-content: center; align-items: center; background: radial-gradient(circle at top, #0f2027, #000000); color: #fff; text-align: center; }
+        .error-code { font-size: 80px; font-weight: 700; color: #ffaa44; text-shadow: 0 0 30px #ffaa4466; }
+        .error-message { font-size: 24px; margin-bottom: 20px; }
+        .error-description { color: #aaa; margin-bottom: 30px; max-width: 500px; }
+        .btn { display: inline-block; padding: 12px 30px; background: linear-gradient(135deg, #00c3ff, #3a7bd5); color: white; text-decoration: none; border-radius: 40px; font-weight: 500; }
+    </style>
+</head>
+<body>
+    <div style="padding:40px;"><div class="error-code">500</div><div class="error-message">Something went wrong</div><div class="error-description"><%= error || 'An unexpected error occurred.' %></div><a href="/home" class="btn">Go Back Home</a></div>
+</body>
+</html>

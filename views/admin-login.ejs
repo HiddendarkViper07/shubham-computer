@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - Shubham Computer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { min-height: 100vh; display: flex; justify-content: center; align-items: center; background: radial-gradient(circle at top, #0f2027, #000000); color: #fff; padding: 20px; }
+        .admin-container { max-width: 400px; width: 100%; }
+        .logo-wrapper { display: flex; flex-direction: column; align-items: center; margin-bottom: 30px; }
+        .logo { width: 90px; height: 90px; object-fit: contain; margin-bottom: 10px; filter: drop-shadow(0 0 10px #ff4757); }
+        .brand-name { font-size: 24px; font-weight: 600; }
+        .admin-badge { background: #ff4757; padding: 4px 12px; border-radius: 20px; font-size: 12px; margin-top: 8px; }
+        .heading { font-size: 20px; margin-bottom: 25px; color: #ddd; text-align: center; }
+        .alert { padding: 12px; border-radius: 12px; margin-bottom: 20px; background: rgba(255,71,87,0.2); border: 1px solid #ff4757; color: #ff4757; }
+        .input-box { display: flex; align-items: center; background: rgba(255,255,255,0.05); border-radius: 14px; padding: 14px 16px; margin-bottom: 16px; border: 1px solid rgba(255,255,255,0.05); }
+        .input-box:focus-within { border-color: #ff4757; box-shadow: 0 0 10px #ff475755; }
+        .input-box span { margin-right: 12px; font-size: 20px; }
+        .input-box input { border: none; outline: none; width: 100%; color: #fff; background: transparent; font-size: 15px; }
+        .btn { width: 100%; padding: 14px; border: none; border-radius: 14px; background: linear-gradient(135deg, #ff4757, #ff6b81); color: #fff; font-size: 16px; font-weight: 600; cursor: pointer; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 20px #ff475766; }
+        .back-link { text-align: center; margin-top: 20px; }
+        .back-link a { color: #888; text-decoration: none; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <div class="logo-wrapper"><img src="/images/logo.png" class="logo" onerror="this.src='https://via.placeholder.com/90/ff4757/ffffff?text=SC'"><div class="brand-name">Shubham Computer</div><div class="admin-badge">🔐 Admin Portal</div></div>
+        <div class="heading">Administrator Login</div>
+        <% if (error) { %><div class="alert"><%= error %></div><% } %>
+        <form action="/auth/admin-login" method="POST">
+            <div class="input-box"><span>📧</span><input type="email" name="email" placeholder="Admin Email" required></div>
+            <div class="input-box"><span>🔒</span><input type="password" name="password" placeholder="Password" required></div>
+            <button type="submit" class="btn">Login to Admin Panel</button>
+        </form>
+        <div class="back-link"><a href="/login">← Back to User Login</a></div>
+    </div>
+</body>
+</html>

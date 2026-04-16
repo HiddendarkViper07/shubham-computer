@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Announcements - Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet" />
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        :root { --bg: #0f2027; --bg2: #000000; --card: #1e2a32; --text: #ffffff; --sub: #aaaaaa; --accent: #ff4757; --nav: #0c1a20; --border: rgba(255,255,255,0.08); --success: #2ecc71; --warning: #ffaa44; --info: #00c3ff; }
+        body { background: radial-gradient(circle at 10% 20%, var(--bg), var(--bg2)); color: var(--text); min-height: 100vh; }
+        .admin-layout { display: flex; min-height: 100vh; }
+        .admin-sidebar { width: 260px; background: var(--nav); border-right: 1px solid var(--border); padding: 24px 16px; position: fixed; height: 100vh; }
+        .admin-main { margin-left: 260px; flex: 1; padding: 24px; }
+        .sidebar-header { padding-bottom: 24px; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
+        .sidebar-header h2 { color: var(--accent); }
+        .nav-link { display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: var(--sub); text-decoration: none; border-radius: 12px; }
+        .nav-link:hover, .nav-link.active { background: var(--accent); color: white; }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .btn-primary { padding: 10px 20px; background: var(--accent); border: none; color: white; border-radius: 40px; cursor: pointer; }
+        .announcement-card { background: var(--card); border-radius: 16px; padding: 20px; margin-bottom: 16px; border: 1px solid var(--border); }
+        .badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; }
+        .badge-general { background: var(--info); color: white; }
+        .badge-vacancy { background: var(--success); color: white; }
+        .badge-important { background: var(--accent); color: white; }
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; z-index: 1500; }
+        .modal-content { background: var(--card); max-width: 600px; width: 90%; border-radius: 24px; padding: 24px; }
+        input, textarea, select { width: 100%; padding: 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 12px; color: var(--text); margin-bottom: 16px; }
+        label { display: block; margin-bottom: 8px; color: var(--sub); }
+    </style>
+</head>
+<body>
+    <div class="admin-layout">
+        <div class="admin-sidebar">
+            <div class="sidebar-header"><h2>Shubham Admin</h2><p><%= user.fullName %></p></div>
+            <nav>
+                <a href="/admin/dashboard" class="nav-link"><span class="material-symbols-rounded">dashboard</span>Dashboard</a>
+                <a href="/admin/services" class="nav-link "><span class="material-symbols-rounded">settings</span>Services</a>
+                <a href="/admin/users" class="nav-link "><span class="material-symbols-rounded">group</span>Users</a>
+                <a href="/admin/requests" class="nav-link"><span class="material-symbols-rounded">assignment</span>Requests</a>
+                <a href="/admin/files" class="nav-link"><span class="material-symbols-rounded">folder</span>Files</a>
+                <a href="/admin/announcements" class="nav-link active"><span class="material-symbols-rounded">campaign</span>Announcements</a>
+                <a href="/admin/messages" class="nav-link"><span class="material-symbols-rounded">mail</span>Messages</a>
+                <a href="/admin/settings" class="nav-link"><span class="material-symbols-rounded">tune</span>Settings</a>
+                <div style="margin-top:30px;"><a href="/home" class="nav-link">Back To Website</a><a href="/logout" class="nav-link" style="color:var(--danger);">Logout</a></div>
+            </nav>
+        </div>
+        <div class="admin-main">
+            <div class="page-header">
+                <div><h1>Announcements</h1><p style="color:var(--sub);">Send updates to users</p></div>
+                <button class="btn-primary" onclick="openModal()">+ New Announcement</button>
+            </div>
+            
+            <div id="announcementsList">
+                <% if (announcements && announcements.length) { %>
+                    <% announcements.forEach(a => { %>
+                    <div class="announcement-card">
+                        <div style="display:flex;justify-content:space-between;">
+                            <div>
+                                <h3><%= a.title %></h3>
+                                <span class="badge badge-<%= a.type %>"><%= a.type %></span>
+                                <span style="margin-left:10px;color:var(--sub);">Target: <%= a.targetUsers %></span>
+                            </div>
+                            <div>
+                                <button onclick="toggleStatus('<%= a._id %>')" style="background:none;border:none;color:var(--info);cursor:pointer;"><%= a.isActive ? 'Active' : 'Inactive' %></button>
+                                <button onclick="deleteAnnouncement('<%= a._id %>')" style="background:none;border:none;color:var(--danger);cursor:pointer;">Delete</button>
+                            </div>
+                        </div>
+                        <p style="margin:10px 0;color:var(--sub);"><%= a.content.substring(0,150) %>...</p>
+                        <div style="font-size:12px;color:var(--sub);">👁️ <%= a.views %> views • <%= new Date(a.createdAt).toLocaleDateString() %></div>
+                    </div>
+                    <% }) %>
+                <% } else { %>
+                    <p style="text-align:center;padding:60px;color:var(--sub);">No announcements yet</p>
+                <% } %>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal" id="announcementModal">
+        <div class="modal-content">
+            <h3>New Announcement</h3>
+            <form id="announcementForm" enctype="multipart/form-data">
+                <label>Title *</label><input type="text" id="title" required>
+                <label>Content *</label><textarea id="content" rows="4" required></textarea>
+                <label>Type</label>
+                <select id="type">
+                    <option value="general">General</option>
+                    <option value="vacancy">Vacancy</option>
+                    <option value="new_service">New Service</option>
+                    <option value="update">Update</option>
+                    <option value="important">Important</option>
+                </select>
+                <label>Target Users</label>
+                <select id="targetUsers">
+                    <option value="all">All Users</option>
+                    <option value="active">Active Users (30 days)</option>
+                    <option value="new">New Users (7 days)</option>
+                </select>
+                <label>Link (Optional)</label><input type="text" id="link" placeholder="https://...">
+                <label>Attachment (Optional)</label><input type="file" id="attachment" accept=".pdf,image/*">
+                <label>Expires At (Optional)</label><input type="date" id="expiresAt">
+                <div style="display:flex;gap:12px;margin-top:20px;">
+                    <button type="button" onclick="closeModal()" style="flex:1;padding:12px;background:transparent;border:1px solid var(--border);color:var(--sub);border-radius:40px;">Cancel</button>
+                    <button type="submit" style="flex:1;padding:12px;background:var(--accent);border:none;color:white;border-radius:40px;">Send</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        function openModal() { document.getElementById('announcementModal').style.display = 'flex'; }
+        function closeModal() { document.getElementById('announcementModal').style.display = 'none'; }
+        
+        document.getElementById('announcementForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData();
+            formData.append('title', document.getElementById('title').value);
+            formData.append('content', document.getElementById('content').value);
+            formData.append('type', document.getElementById('type').value);
+            formData.append('targetUsers', document.getElementById('targetUsers').value);
+            formData.append('link', document.getElementById('link').value);
+            formData.append('expiresAt', document.getElementById('expiresAt').value);
+            
+            const file = document.getElementById('attachment').files[0];
+            if (file) formData.append('attachment', file);
+            
+            try {
+                const res = await fetch('/admin/announcements', { method: 'POST', body: formData });
+                const data = await res.json();
+                if (data.success) { alert(data.message); location.reload(); }
+                else { alert('Failed: ' + data.error); }
+            } catch (err) { alert('Error'); }
+        });
+        
+        async function deleteAnnouncement(id) { if (confirm('Delete?')) { await fetch('/admin/announcements/' + id, { method: 'DELETE' }); location.reload(); } }
+        async function toggleStatus(id) { await fetch('/admin/announcements/' + id + '/toggle', { method: 'PUT' }); location.reload(); }
+    </script>
+</body>
+</html>

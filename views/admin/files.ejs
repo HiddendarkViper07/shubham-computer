@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Management - Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet" />
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        :root { --bg: #0f2027; --bg2: #000000; --card: #1e2a32; --text: #ffffff; --sub: #aaaaaa; --accent: #ff4757; --nav: #0c1a20; --border: rgba(255,255,255,0.08); --success: #2ecc71; --danger: #ff4d4d; }
+        body { background: radial-gradient(circle at 10% 20%, var(--bg), var(--bg2)); color: var(--text); min-height: 100vh; }
+        .admin-layout { display: flex; min-height: 100vh; }
+        .admin-sidebar { width: 260px; background: var(--nav); border-right: 1px solid var(--border); padding: 24px 16px; position: fixed; height: 100vh; }
+        .admin-main { margin-left: 260px; flex: 1; padding: 24px; }
+        .sidebar-header { padding-bottom: 24px; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
+        .sidebar-header h2 { color: var(--accent); }
+        .nav-link { display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: var(--sub); text-decoration: none; border-radius: 12px; }
+        .nav-link:hover, .nav-link.active { background: var(--accent); color: white; }
+        .stats-mini { display: flex; gap: 20px; margin-bottom: 30px; }
+        .stat-mini { background: var(--card); padding: 16px 24px; border-radius: 16px; }
+        .stat-mini .value { font-size: 24px; font-weight: 700; color: var(--accent); }
+        .files-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+        .file-card { background: var(--card); border-radius: 16px; overflow: hidden; border: 1px solid var(--border); position: relative; }
+        .file-checkbox { position: absolute; top: 12px; left: 12px; z-index: 10; }
+        .file-preview { height: 160px; background: rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .file-preview img { max-width: 100%; max-height: 100%; }
+        .file-preview .icon { font-size: 48px; }
+        .file-info { padding: 16px; }
+        .file-name { font-weight: 500; margin-bottom: 8px; word-break: break-all; }
+        .file-meta { font-size: 11px; color: var(--sub); margin-bottom: 4px; }
+        .file-actions { display: flex; gap: 8px; margin-top: 12px; }
+        .btn-sm { padding: 6px 12px; border-radius: 6px; font-size: 12px; text-decoration: none; border: none; cursor: pointer; }
+        .btn-view { background: var(--accent); color: white; }
+        .btn-download { background: #00c3ff; color: white; }
+        .btn-delete { background: var(--danger); color: white; }
+        .delete-all-btn { background: var(--danger); color: white; border: none; padding: 10px 20px; border-radius: 40px; cursor: pointer; }
+        .bulk-actions { display: none; position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: var(--card); padding: 16px 30px; border-radius: 60px; border: 1px solid var(--accent); z-index: 500; gap: 20px; }
+        .bulk-actions.show { display: flex; }
+    </style>
+</head>
+<body>
+    <div class="admin-layout">
+        <div class="admin-sidebar">
+            <div class="sidebar-header"><h2>Shubham Admin</h2><p><%= user.fullName %></p></div>
+            <nav>
+                <a href="/admin/dashboard" class="nav-link"><span class="material-symbols-rounded">dashboard</span>Dashboard</a>
+                <a href="/admin/services" class="nav-link "><span class="material-symbols-rounded">settings</span>Services</a>
+                <a href="/admin/users" class="nav-link "><span class="material-symbols-rounded">group</span>Users</a>
+                <a href="/admin/requests" class="nav-link"><span class="material-symbols-rounded">assignment</span>Requests</a>
+                <a href="/admin/files" class="nav-link active"><span class="material-symbols-rounded">folder</span>Files</a>
+                <a href="/admin/announcements" class="nav-link"><span class="material-symbols-rounded">campaign</span>Announcements</a>
+                <a href="/admin/messages" class="nav-link"><span class="material-symbols-rounded">mail</span>Messages</a>
+                <a href="/admin/settings" class="nav-link"><span class="material-symbols-rounded">tune</span>Settings</a>
+                <div style="margin-top:30px;"><a href="/home" class="nav-link">Back To Website</a><a href="/logout" class="nav-link" style="color:var(--danger);">Logout</a></div>
+            </nav>
+        </div>
+        <div class="admin-main">
+            <div style="display:flex;justify-content:space-between;margin-bottom:20px;"><div><h1>File Management</h1><p style="color:var(--sub);">Manage all uploaded documents</p></div><button class="delete-all-btn" onclick="deleteAllFiles()">🗑️ Delete All Files</button></div>
+            <div class="stats-mini">
+                <div class="stat-mini"><div class="value"><%= stats.totalFiles||0 %></div><div class="label">Total Files</div></div>
+                <div class="stat-mini"><div class="value"><%= stats.totalSize?.[0]?.total?(stats.totalSize[0].total/(1024*1024)).toFixed(2):0 %> MB</div><div class="label">Total Size</div></div>
+            </div>
+            <div style="display:flex;align-items:center;gap:15px;margin-bottom:20px;"><input type="checkbox" id="selectAllCheckbox"><label for="selectAllCheckbox">Select All</label></div>
+            <div class="files-grid">
+                <% if (files && files.length) { %>
+                    <% files.forEach(f => { %>
+                    <div class="file-card" id="file-<%= f._id %>">
+                        <input type="checkbox" class="file-checkbox" value="<%= f._id %>">
+                        <div class="file-preview" onclick="window.open('/upload/file/<%= f._id %>', '_blank')">
+                            <% if (f.contentType?.startsWith('image/')) { %><img src="/upload/file/<%= f._id %>"><% } else if (f.contentType==='application/pdf') { %><span class="icon">📄</span><% } else { %><span class="icon">📁</span><% } %>
+                        </div>
+                        <div class="file-info">
+                            <div class="file-name"><%= f.originalName.substring(0,30) %></div>
+                            <div class="file-meta">Uploader: <%= f.uploader %></div>
+                            <div class="file-meta">Size: <%= (f.size/1024).toFixed(2) %> KB</div>
+                            <div class="file-actions">
+                                <a href="/upload/file/<%= f._id %>" target="_blank" class="btn-sm btn-view">View</a>
+                                <a href="/upload/download/<%= f._id %>" class="btn-sm btn-download">Download</a>
+                                <button onclick="deleteFile('<%= f._id %>')" class="btn-sm btn-delete">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                    <% }) %>
+                <% } else { %><div style="grid-column:1/-1;text-align:center;padding:60px;">No files</div><% } %>
+            </div>
+        </div>
+    </div>
+    <div class="bulk-actions" id="bulkActionsBar"><span id="selectedCount">0</span> selected <button class="btn-sm btn-delete" onclick="deleteSelected()">Delete</button><button onclick="clearSelection()">Cancel</button></div>
+    <script>
+        const selectAll = document.getElementById('selectAllCheckbox'), checkboxes = document.querySelectorAll('.file-checkbox'), bulkBar = document.getElementById('bulkActionsBar'), countSpan = document.getElementById('selectedCount');
+        function updateBulkBar() { const c = document.querySelectorAll('.file-checkbox:checked'); if(c.length) { bulkBar.classList.add('show'); countSpan.textContent = c.length; } else { bulkBar.classList.remove('show'); } }
+        selectAll?.addEventListener('change', (e) => { checkboxes.forEach(cb => cb.checked = e.target.checked); updateBulkBar(); });
+        checkboxes.forEach(cb => cb.addEventListener('change', updateBulkBar));
+        function clearSelection() { checkboxes.forEach(cb => cb.checked = false); selectAll.checked = false; updateBulkBar(); }
+        async function deleteFile(id) { if(!confirm('Delete?')) return; try { await fetch('/upload/file/'+id, {method:'DELETE'}); location.reload(); } catch(e) {} }
+        async function deleteSelected() { const ids = Array.from(document.querySelectorAll('.file-checkbox:checked')).map(cb=>cb.value); if(!ids.length) return; if(!confirm(`Delete ${ids.length} files?`)) return; for(let id of ids) await fetch('/upload/file/'+id, {method:'DELETE'}); location.reload(); }
+        async function deleteAllFiles() { if(!confirm('Delete ALL files? Type DELETE to confirm')) return; const p = prompt('Type "DELETE ALL" to confirm:'); if(p!=='DELETE ALL') return; const ids = Array.from(document.querySelectorAll('.file-checkbox')).map(cb=>cb.value); for(let id of ids) await fetch('/upload/file/'+id, {method:'DELETE'}); location.reload(); }
+    </script>
+</body>
+</html>

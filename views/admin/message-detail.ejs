@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat with <%= message.userName %> - Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet" />
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        :root { --bg: #0f2027; --bg2: #000000; --card: #1e2a32; --text: #ffffff; --sub: #aaaaaa; --accent: #ff4757; --nav: #0c1a20; --border: rgba(255,255,255,0.08); --success: #2ecc71; --warning: #ffaa44; --danger: #ff4d4d; --info: #00c3ff; }
+        body { background: radial-gradient(circle at 10% 20%, var(--bg), var(--bg2)); color: var(--text); min-height: 100vh; }
+        .admin-layout { display: flex; min-height: 100vh; }
+        .admin-sidebar { width: 260px; background: var(--nav); border-right: 1px solid var(--border); padding: 24px 16px; position: fixed; height: 100vh; overflow-y: auto; }
+        .admin-main { margin-left: 260px; flex: 1; padding: 24px; }
+        .sidebar-header { padding-bottom: 24px; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
+        .sidebar-header h2 { color: var(--accent); }
+        .nav-link { display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: var(--sub); text-decoration: none; border-radius: 12px; }
+        .nav-link:hover, .nav-link.active { background: var(--accent); color: white; }
+        .nav-link span { font-size: 22px; }
+        .back-link { display: inline-block; margin-bottom: 24px; color: var(--sub); text-decoration: none; }
+        .back-link:hover { color: var(--accent); }
+        
+        /* Chat Container */
+        .chat-container { display: flex; flex-direction: column; height: calc(100vh - 120px); background: var(--card); border-radius: 20px; border: 1px solid var(--border); overflow: hidden; }
+        
+        /* Chat Header */
+        .chat-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; background: var(--nav); border-bottom: 1px solid var(--border); }
+        .chat-user { display: flex; align-items: center; gap: 12px; }
+        .user-avatar { width: 45px; height: 45px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 18px; color: white; }
+        .user-info h4 { margin-bottom: 4px; }
+        .user-info p { font-size: 12px; color: var(--sub); }
+        .chat-actions { display: flex; gap: 10px; }
+        .status-badge { padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+        .status-pending { background: var(--warning); color: black; }
+        .status-read { background: var(--info); color: white; }
+        .status-replied { background: var(--success); color: white; }
+        .status-resolved { background: #888; color: white; }
+        
+        /* Chat Messages Area */
+        .chat-messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; background: rgba(0,0,0,0.2); }
+        .message-wrapper { display: flex; gap: 10px; max-width: 80%; }
+        .message-wrapper.user { align-self: flex-end; flex-direction: row-reverse; }
+        .message-wrapper.admin { align-self: flex-start; }
+        .message-avatar { width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 14px; color: white; flex-shrink: 0; }
+        .message-wrapper.user .message-avatar { background: var(--accent); }
+        .message-wrapper.admin .message-avatar { background: var(--success); }
+        .message-bubble { padding: 12px 16px; border-radius: 18px; position: relative; }
+        .message-wrapper.user .message-bubble { background: var(--accent); color: white; border-bottom-right-radius: 4px; }
+        .message-wrapper.admin .message-bubble { background: var(--card); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
+        .message-time { font-size: 10px; opacity: 0.7; margin-top: 5px; text-align: right; }
+        .message-content { line-height: 1.5; word-break: break-word; }
+        
+        /* Date Divider */
+        .date-divider { text-align: center; margin: 15px 0; position: relative; }
+        .date-divider span { background: var(--card); padding: 5px 15px; border-radius: 20px; font-size: 11px; color: var(--sub); border: 1px solid var(--border); }
+        
+        /* Chat Input */
+        .chat-input { padding: 16px 20px; background: var(--nav); border-top: 1px solid var(--border); display: flex; gap: 12px; align-items: center; }
+        .chat-input textarea { flex: 1; padding: 12px 16px; background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 24px; color: var(--text); resize: none; outline: none; font-size: 14px; max-height: 100px; }
+        .chat-input textarea:focus { border-color: var(--accent); }
+        .send-btn { width: 48px; height: 48px; border-radius: 50%; background: var(--accent); border: none; color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; flex-shrink: 0; }
+        .send-btn:hover { transform: scale(1.05); background: var(--success); }
+        .send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        /* Status Buttons */
+        .status-bar { display: flex; gap: 8px; padding: 12px 20px; background: var(--nav); border-top: 1px solid var(--border); flex-wrap: wrap; }
+        .status-btn { padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border); background: transparent; color: var(--sub); cursor: pointer; font-size: 12px; transition: 0.2s; }
+        .status-btn:hover { border-color: var(--accent); }
+        .status-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+        .status-btn.resolved { border-color: var(--success); color: var(--success); }
+        .status-btn.resolved:hover { background: var(--success); color: white; }
+        
+        /* Empty State */
+        .empty-chat { text-align: center; padding: 40px; color: var(--sub); }
+        
+        /* Typing Indicator */
+        .typing-indicator { display: flex; gap: 4px; padding: 12px 16px; background: var(--card); border-radius: 18px; border-bottom-left-radius: 4px; max-width: 60px; }
+        .typing-indicator span { width: 8px; height: 8px; background: var(--sub); border-radius: 50%; animation: typing 1.4s infinite; }
+        .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes typing { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-8px); } }
+    </style>
+</head>
+<body>
+    <div class="admin-layout">
+        <div class="admin-sidebar">
+            <div class="sidebar-header"><h2>Shubham Admin</h2><p><%= user.fullName %></p></div>
+            <nav>
+                <a href="/admin/dashboard" class="nav-link"><span class="material-symbols-rounded">dashboard</span>Dashboard</a>
+                <a href="/admin/services" class="nav-link"><span class="material-symbols-rounded">settings</span>Services</a>
+                <a href="/admin/users" class="nav-link"><span class="material-symbols-rounded">group</span>Users</a>
+                <a href="/admin/requests" class="nav-link"><span class="material-symbols-rounded">assignment</span>Requests</a>
+                <a href="/admin/files" class="nav-link"><span class="material-symbols-rounded">folder</span>Files</a>
+                <a href="/admin/announcements" class="nav-link"><span class="material-symbols-rounded">campaign</span>Announcements</a>
+                <a href="/admin/messages" class="nav-link active"><span class="material-symbols-rounded">mail</span>Messages</a>
+                <a href="/admin/settings" class="nav-link"><span class="material-symbols-rounded">tune</span>Settings</a>
+                <div style="margin-top:30px;"><a href="/home" class="nav-link">Back To Website</a><a href="/logout" class="nav-link" style="color:var(--danger);">Logout</a></div>
+            </nav>
+        </div>
+        <div class="admin-main">
+            <a href="/admin/messages" class="back-link">← Back to Messages</a>
+            
+            <!-- Chat Container -->
+            <div class="chat-container">
+                <!-- Chat Header -->
+                <div class="chat-header">
+                    <div class="chat-user">
+                        <div class="user-avatar"><%= message.userName.charAt(0).toUpperCase() %></div>
+                        <div class="user-info">
+                            <h4><%= message.userName %></h4>
+                            <p><%= message.userEmail %> • <%= message.subject %></p>
+                        </div>
+                    </div>
+                    <div class="chat-actions">
+                        <span class="status-badge status-<%= message.status %>"><%= message.status.charAt(0).toUpperCase() + message.status.slice(1) %></span>
+                    </div>
+                </div>
+                
+                <!-- Chat Messages -->
+                <div class="chat-messages" id="chatMessages">
+                    <!-- User's Message -->
+                    <div class="message-wrapper user">
+                        <div class="message-avatar"><%= message.userName.charAt(0).toUpperCase() %></div>
+                        <div class="message-bubble">
+                            <div class="message-content"><%= message.message.replace(/\n/g, '<br>') %></div>
+                            <div class="message-time"><%= new Date(message.createdAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) %></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Admin's Reply (if exists) -->
+                    <% if (message.adminReply) { %>
+                    <div class="message-wrapper admin">
+                        <div class="message-avatar" style="background: var(--success);">A</div>
+                        <div class="message-bubble">
+                            <div class="message-content"><%= message.adminReply.replace(/\n/g, '<br>') %></div>
+                            <div class="message-time"><%= new Date(message.repliedAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) %></div>
+                        </div>
+                    </div>
+                    <% } %>
+                </div>
+                
+                <!-- Status Bar -->
+                <div class="status-bar">
+                    <button class="status-btn <%= message.status==='pending'?'active':'' %>" onclick="updateStatus('pending')">📋 Pending</button>
+                    <button class="status-btn <%= message.status==='read'?'active':'' %>" onclick="updateStatus('read')">👁️ Read</button>
+                    <button class="status-btn <%= message.status==='replied'?'active':'' %>" onclick="updateStatus('replied')">✅ Replied</button>
+                    <button class="status-btn resolved <%= message.status==='resolved'?'active':'' %>" onclick="updateStatus('resolved')">🎯 Resolved</button>
+                    <button class="status-btn" style="margin-left:auto;border-color:var(--danger);color:var(--danger);" onclick="deleteMessage()">🗑️ Delete</button>
+                </div>
+                
+                <!-- Chat Input -->
+                <div class="chat-input">
+                    <textarea id="replyMessage" placeholder="Type your reply here..." rows="1"></textarea>
+                    <button class="send-btn" onclick="sendReply()" id="sendBtn">
+                        <span class="material-symbols-rounded">send</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const textarea = document.getElementById('replyMessage');
+        
+        // Auto-resize textarea
+        textarea.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+        });
+        
+        // Send on Enter (Shift+Enter for new line)
+        textarea.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendReply();
+            }
+        });
+        
+        async function sendReply() {
+            const reply = textarea.value.trim();
+            if (!reply) { 
+                alert('Please enter a reply'); 
+                return; 
+            }
+            
+            const sendBtn = document.getElementById('sendBtn');
+            sendBtn.disabled = true;
+            sendBtn.innerHTML = '<span class="material-symbols-rounded">hourglass</span>';
+            
+            try {
+                const res = await fetch('/admin/messages/<%= message._id %>/reply', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ reply })
+                });
+                const data = await res.json();
+                
+                if (data.success) { 
+                    location.reload();
+                } else { 
+                    alert('❌ Failed: ' + (data.error || 'Unknown error'));
+                    sendBtn.disabled = false;
+                    sendBtn.innerHTML = '<span class="material-symbols-rounded">send</span>';
+                }
+            } catch(e) { 
+                alert('❌ Error sending reply');
+                sendBtn.disabled = false;
+                sendBtn.innerHTML = '<span class="material-symbols-rounded">send</span>';
+            }
+        }
+        
+        async function updateStatus(status) {
+            try {
+                const res = await fetch('/admin/messages/<%= message._id %>/status', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    location.reload();
+                }
+            } catch(e) { 
+                alert('Error updating status'); 
+            }
+        }
+        
+        async function deleteMessage() {
+            if (!confirm('Delete this entire conversation? This cannot be undone.')) return;
+            try {
+                const res = await fetch('/admin/messages/<%= message._id %>', { method: 'DELETE' });
+                const data = await res.json();
+                if (data.success) {
+                    window.location.href = '/admin/messages';
+                }
+            } catch(e) { 
+                alert('Error deleting message'); 
+            }
+        }
+        
+        // Scroll to bottom of chat
+        const chatMessages = document.getElementById('chatMessages');
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    </script>
+</body>
+</html>
