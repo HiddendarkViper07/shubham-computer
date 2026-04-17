@@ -13,6 +13,7 @@ dotenv.config();
 console.log('🔑 Razorpay Key ID:', process.env.RAZORPAY_KEY_ID ? 'Loaded' : 'Not Found');
 console.log('🔐 Google OAuth:', process.env.GOOGLE_CLIENT_ID ? 'Configured' : 'Not Configured');
 console.log('🏦 Easebuzz:', process.env.EASEBUZZ_MERCHANT_KEY ? 'Configured' : 'Not Configured');
+console.log('📦 MongoDB URI:', process.env.MONGODB_URI ? 'Configured' : 'MISSING!');
 
 const app = express();
 
@@ -30,17 +31,31 @@ app.use(express.json());
 app.use(methodOverride('_method'));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Session configuration
+// MongoDB Connection - FIXED
+const mongoURI = process.env.MONGODB_URI;
+
+if (!mongoURI) {
+    console.error('❌ FATAL ERROR: MONGODB_URI is not defined in environment variables');
+    console.error('Please add MONGODB_URI to your Railway Variables');
+    process.exit(1);
+}
+
+// Session configuration - FIXED with proper error handling
 app.use(session({
     secret: process.env.SESSION_SECRET || 'shubham_secret',
     resave: false,
     saveUninitialized: false,
     store: MongoStore.create({
-        mongoUrl: process.env.MONGODB_URI,
-        collectionName: 'sessions'
+        mongoUrl: mongoURI,
+        collectionName: 'sessions',
+        autoRemove: 'interval',
+        autoRemoveInterval: 10,
+        touchAfter: 24 * 3600
     }),
     cookie: {
-        maxAge: 1000 * 60 * 60 * 24 * 7 // 7 days
+        maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
+        secure: process.env.NODE_ENV === 'production', // Secure in production
+        httpOnly: true
     }
 }));
 
@@ -87,36 +102,51 @@ app.use(async (req, res, next) => {
     next();
 });
 
-// MongoDB Connection
-const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/shubham_computer';
-
-mongoose.connect(mongoURI)
-    .then(() => console.log('✅ MongoDB connected successfully'))
-    .catch(err => console.error('❌ MongoDB connection error:', err));
-
-// Initialize Payment Settings if not exists
-// Initialize Payment Settings if not exists
-const PaymentSettings = require('./models/PaymentSettings');
-PaymentSettings.findOne().then(settings => {
-    if (!settings) {
-        const defaultSettings = new PaymentSettings({
-            paymentEnabled: true,
-            activeGateway: 'razorpay',
-            razorpay: {
-                enabled: true,
-                keyId: process.env.RAZORPAY_KEY_ID || '',
-                keySecret: process.env.RAZORPAY_KEY_SECRET || '',
-                testMode: true
-            },
-            easebuzz: {
-                enabled: false,
-                merchantKey: process.env.EASEBUZZ_MERCHANT_KEY || '',
-                saltKey: process.env.EASEBUZZ_SALT_KEY || '',
-                testMode: true,
-                env: 'test'
-            }
+// MongoDB Connection with retry logic
+const connectWithRetry = async () => {
+    try {
+        await mongoose.connect(mongoURI, {
+            serverSelectionTimeoutMS: 5000,
+            socketTimeoutMS: 45000,
         });
-        defaultSettings.save().then(() => console.log('✅ Default payment settings created'));
+        console.log('✅ MongoDB connected successfully');
+    } catch (err) {
+        console.error('❌ MongoDB connection error:', err.message);
+        console.log('Retrying in 5 seconds...');
+        setTimeout(connectWithRetry, 5000);
+    }
+};
+
+connectWithRetry();
+
+// Initialize Payment Settings if not exists (after DB connection)
+mongoose.connection.once('open', async () => {
+    try {
+        const PaymentSettings = require('./models/PaymentSettings');
+        const settings = await PaymentSettings.findOne();
+        if (!settings) {
+            const defaultSettings = new PaymentSettings({
+                paymentEnabled: true,
+                activeGateway: 'razorpay',
+                razorpay: {
+                    enabled: true,
+                    keyId: process.env.RAZORPAY_KEY_ID || '',
+                    keySecret: process.env.RAZORPAY_KEY_SECRET || '',
+                    testMode: true
+                },
+                easebuzz: {
+                    enabled: false,
+                    merchantKey: process.env.EASEBUZZ_MERCHANT_KEY || '',
+                    saltKey: process.env.EASEBUZZ_SALT_KEY || '',
+                    testMode: true,
+                    env: 'test'
+                }
+            });
+            await defaultSettings.save();
+            console.log('✅ Default payment settings created');
+        }
+    } catch (err) {
+        console.error('⚠️ Payment settings init error:', err.message);
     }
 });
 
@@ -154,7 +184,7 @@ app.use((err, req, res, next) => {
 
 // Start server
 const PORT = process.env.PORT || 8081;
-app.listen(PORT, () => {
-    console.log(`🚀 Server running on http://localhost:${PORT}`);
-    console.log(`🔒 Admin panel: http://localhost:${PORT}/admin`);
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 Server running on port ${PORT}`);
+    console.log(`🔒 Admin panel available at /admin`);
 });
