@@ -6,7 +6,6 @@
     <title>Home - Shubham Computer</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0,1" rel="stylesheet" />
-    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
         :root { --bg: #0f2027; --bg2: #000000; --card: #ffffff0a; --card-solid: #1e2a32; --text: #ffffff; --sub: #aaaaaa; --accent: #00c3ff; --nav: #0c1a20; --border: rgba(255,255,255,0.08); --danger: #ff4d4d; --success: #2ecc71; --warning: #ffaa44; }
@@ -19,8 +18,7 @@
         .badge-notification { position: absolute; top: -6px; right: -8px; background: #e53935; color: white; font-size: 11px; font-weight: 700; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid var(--nav); line-height: 1; box-shadow: 0 0 0 1px rgba(229,57,53,0.4); }
         .profile { display: flex; align-items: center; gap: 10px; cursor: pointer; }
         .profile img { width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--accent); }
-        .profile span { display: none; }
-        @media (min-width: 480px) { .profile span { display: inline; } }
+        .profile span { display: none; } @media (min-width: 480px) { .profile span { display: inline; } }
         .sidebar { position: fixed; left: -280px; top: 0; width: 280px; height: 100%; background: var(--nav); padding: 24px 20px; transition: 0.3s; z-index: 1200; border-right: 1px solid var(--border); overflow-y: auto; }
         .sidebar.active { left: 0; }
         .sidebar a { display: flex; align-items: center; gap: 14px; padding: 12px 16px; margin-bottom: 8px; color: var(--sub); text-decoration: none; border-radius: 14px; }
@@ -34,7 +32,7 @@
         .stat-card { background: var(--card); border-radius: 20px; padding: 20px; border: 1px solid var(--border); text-align: center; cursor: pointer; }
         .stat-value { font-size: 32px; font-weight: 700; color: var(--accent); }
         .stat-label { font-size: 13px; color: var(--sub); margin-top: 5px; }
-        .btn { background: linear-gradient(135deg, var(--accent), #2c6e9e); border: none; padding: 12px 24px; border-radius: 40px; color: white; font-weight: 600; cursor: pointer; width: 100%; }
+        .btn { background: linear-gradient(135deg, var(--accent), #2c6e9e); border: none; padding: 12px 24px; border-radius: 40px; color: white; font-weight: 600; cursor: pointer; width: 100%; text-decoration: none; display: inline-block; text-align: center; }
         .bottom-nav { position: fixed; bottom: 0; width: 100%; background: var(--nav); display: flex; justify-content: space-around; padding: 8px 12px 12px; border-top: 1px solid var(--border); z-index: 100; }
         .nav-item { text-align: center; font-size: 12px; color: var(--sub); text-decoration: none; }
         .nav-item span { font-size: 26px; display: block; }
@@ -46,13 +44,14 @@
         .service-card:hover { transform: translateY(-4px); border-color: var(--accent); }
         .service-price { font-size: 14px; color: var(--accent); font-weight: 600; }
         .service-days { font-size: 12px; color: var(--sub); }
+        .empty-state { text-align: center; padding: 40px; color: var(--sub); }
     </style>
 </head>
 <body>
     <div class="sidebar" id="sidebar">
         <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
-            <img src="/images/logo.png" alt="Logo" style="width: 28px; height: 28px; object-fit: contain;" onerror="this.src='https://via.placeholder.com/28/00c3ff/ffffff?text=SC'">
-            <h3 style="color: var(--accent); margin: 0;">Shubham Computers</h3>
+            <img src="/images/logo.png" style="width:28px;height:28px;" onerror="this.src='https://via.placeholder.com/28/00c3ff/ffffff?text=SC'">
+            <h3 style="color:var(--accent);margin:0;">Shubham Computers</h3>
         </div>
         <a href="/home"><span class="material-symbols-rounded">home</span>Home</a>
         <a href="/profile"><span class="material-symbols-rounded">person</span>My Profile</a>
@@ -60,11 +59,11 @@
         <a href="/upload-page"><span class="material-symbols-rounded">cloud_upload</span>Upload</a>
         <a href="/payments"><span class="material-symbols-rounded">payments</span>Payments</a>
         <a href="/apply"><span class="material-symbols-rounded">description</span>Apply</a>
-        <a href="/notifications"><span class="material-symbols-rounded">notifications</span>Notifications<% if (unreadCount > 0) { %><span style="background: var(--danger); color: white; padding: 2px 8px; border-radius: 20px; font-size: 11px; margin-left: auto;"><%= unreadCount %></span><% } %></a>
+        <a href="/notifications"><span class="material-symbols-rounded">notifications</span>Notifications<% if (typeof unreadCount !== 'undefined' && unreadCount > 0) { %><span style="background:var(--danger);color:white;padding:2px 8px;border-radius:20px;font-size:11px;margin-left:auto;"><%= unreadCount %></span><% } %></a>
         <a href="/certificates"><span class="material-symbols-rounded">verified</span>My Certificates</a>
         <a href="/announcements"><span class="material-symbols-rounded">campaign</span>Announcements</a>
         <a href="/support"><span class="material-symbols-rounded">support_agent</span>Support</a>
-        <a href="/logout" style="margin-top: 30px; color: var(--danger);"><span class="material-symbols-rounded">logout</span>Logout</a>
+        <a href="/logout" style="margin-top:30px;color:var(--danger);"><span class="material-symbols-rounded">logout</span>Logout</a>
     </div>
     <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
     
@@ -73,7 +72,9 @@
         <div class="header-right">
             <a href="/notifications" class="notification-bell">
                 <span class="material-symbols-rounded">notifications</span>
-                <% if (unreadCount > 0) { %><span class="badge-notification"><%= unreadCount > 9 ? '9+' : unreadCount %></span><% } %>
+                <% if (typeof unreadCount !== 'undefined' && unreadCount > 0) { %>
+                <span class="badge-notification"><%= unreadCount > 9 ? '9+' : unreadCount %></span>
+                <% } %>
             </a>
             <div class="profile" onclick="window.location.href='/profile'">
                 <span><%= user.fullName %></span>
@@ -89,15 +90,38 @@
         </div>
         
         <div class="stats-grid">
-            <div class="stat-card" onclick="window.location.href='/requests'"><div class="stat-value" id="totalRequests"><%= stats.totalRequests %></div><div class="stat-label">Requests</div></div>
-            <div class="stat-card" onclick="window.location.href='/requests'"><div class="stat-value" id="pendingRequests"><%= stats.pendingRequests %></div><div class="stat-label">Pending</div></div>
-            <div class="stat-card" onclick="window.location.href='/upload-page'"><div class="stat-value" id="totalFiles"><%= stats.totalFiles %></div><div class="stat-label">Files</div></div>
-            <div class="stat-card" onclick="window.location.href='/upload-page'"><div class="stat-value">+</div><div class="stat-label">Upload</div></div>
+            <div class="stat-card" onclick="window.location.href='/requests'">
+                <div class="stat-value" id="totalRequests"><%= stats.totalRequests || 0 %></div>
+                <div class="stat-label">Requests</div>
+            </div>
+            <div class="stat-card" onclick="window.location.href='/requests'">
+                <div class="stat-value" id="pendingRequests"><%= stats.pendingRequests || 0 %></div>
+                <div class="stat-label">Pending</div>
+            </div>
+            <div class="stat-card" onclick="window.location.href='/upload-page'">
+                <div class="stat-value" id="totalFiles"><%= stats.totalFiles || 0 %></div>
+                <div class="stat-label">Files</div>
+            </div>
+            <div class="stat-card" onclick="window.location.href='/upload-page'">
+                <div class="stat-value">+</div>
+                <div class="stat-label">Upload</div>
+            </div>
         </div>
         
-        <div class="section-title"><span>📄 Apply for Certificate</span><span style="font-size: 14px; color: var(--sub);" id="serviceCount">0 services</span></div>
-        <div class="search-box"><span class="material-symbols-rounded" style="color: var(--sub); margin-right: 10px;">search</span><input type="text" id="searchInput" placeholder="Search services..." onkeyup="filterServices()"><button onclick="filterServices()">Search</button></div>
-        <div id="servicesGrid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;"><div class="card" style="grid-column: 1/-1; text-align: center; padding: 40px;"><p style="color: var(--sub);">Loading services...</p></div></div>
+        <div class="section-title">
+            <span>📄 Apply for Certificate</span>
+            <span style="font-size: 14px; color: var(--sub);" id="serviceCount">0 services</span>
+        </div>
+        
+        <div class="search-box">
+            <span class="material-symbols-rounded" style="color: var(--sub); margin-right: 10px;">search</span>
+            <input type="text" id="searchInput" placeholder="Search services..." onkeyup="filterServices()">
+            <button onclick="filterServices()">Search</button>
+        </div>
+        
+        <div id="servicesGrid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
+            <div class="empty-state">Loading services...</div>
+        </div>
     </div>
     
     <div class="bottom-nav">
@@ -108,38 +132,77 @@
     </div>
     
     <script>
-        const RAZORPAY_KEY_ID = '<%= RAZORPAY_KEY_ID %>';
+        const RAZORPAY_KEY_ID = '<%= typeof RAZORPAY_KEY_ID !== "undefined" ? RAZORPAY_KEY_ID : "" %>';
         let allServices = [];
         
-        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('overlay').classList.toggle('active'); }
+        function toggleSidebar() { 
+            document.getElementById('sidebar').classList.toggle('active'); 
+            document.getElementById('overlay').classList.toggle('active'); 
+        }
         
         async function loadServices() {
             try {
                 const res = await fetch('/api/service-requirements');
                 allServices = await res.json();
-                renderServices(allServices.filter(s => s.isActive));
-                document.getElementById('serviceCount').textContent = allServices.filter(s => s.isActive).length + ' services';
-            } catch(e) { document.getElementById('servicesGrid').innerHTML = '<div class="card" style="grid-column:1/-1;text-align:center;padding:40px;"><p style="color:var(--sub);">Failed to load services</p></div>'; }
+                const activeServices = allServices.filter(s => s.isActive);
+                renderServices(activeServices);
+                document.getElementById('serviceCount').textContent = activeServices.length + ' services';
+            } catch(e) { 
+                document.getElementById('servicesGrid').innerHTML = '<div class="empty-state">Failed to load services</div>'; 
+            }
         }
         
         function renderServices(services) {
             const grid = document.getElementById('servicesGrid');
-            if (!services.length) { grid.innerHTML = '<div class="card" style="grid-column:1/-1;text-align:center;padding:40px;"><p style="color:var(--sub);">No services available</p></div>'; return; }
-            grid.innerHTML = services.map(s => `<div class="card service-card" style="padding:16px;" onclick="window.location.href='/apply/${s._id}'"><span class="material-symbols-rounded" style="font-size:28px;color:var(--accent);">description</span><p style="margin-top:8px;font-size:14px;font-weight:500;">${s.serviceName}</p><p style="font-size:11px;color:var(--sub);margin:5px 0;">${s.description||''}</p><div style="display:flex;justify-content:space-between;margin-top:8px;"><span class="service-price">₹${s.processingFee}</span><span class="service-days">⏱️ ${s.estimatedDays} days</span></div></div>`).join('');
+            if (!services.length) { 
+                grid.innerHTML = '<div class="empty-state">No services available</div>'; 
+                return; 
+            }
+            grid.innerHTML = services.map(s => `
+                <div class="card service-card" style="padding:16px;" onclick="window.location.href='/apply/${s._id}'">
+                    <span class="material-symbols-rounded" style="font-size:28px;color:var(--accent);">description</span>
+                    <p style="margin-top:8px;font-size:14px;font-weight:500;">${s.serviceName}</p>
+                    <p style="font-size:11px;color:var(--sub);margin:5px 0;">${s.description||''}</p>
+                    <div style="display:flex;justify-content:space-between;margin-top:8px;">
+                        <span class="service-price">₹${s.processingFee}</span>
+                        <span class="service-days">⏱️ ${s.estimatedDays} days</span>
+                    </div>
+                </div>
+            `).join('');
         }
         
         function filterServices() {
             const term = document.getElementById('searchInput').value.toLowerCase();
-            const filtered = allServices.filter(s => s.isActive && (s.serviceName.toLowerCase().includes(term) || (s.description||'').toLowerCase().includes(term)));
+            const activeServices = allServices.filter(s => s.isActive);
+            const filtered = activeServices.filter(s => 
+                s.serviceName.toLowerCase().includes(term) || 
+                (s.description||'').toLowerCase().includes(term)
+            );
             renderServices(filtered);
             document.getElementById('serviceCount').textContent = filtered.length + ' services';
         }
         
         async function updateUnreadCount() {
-            try { const res = await fetch('/api/unread-count'); const data = await res.json(); const badge = document.querySelector('.badge-notification'); if(badge) { if(data.count>0) { badge.textContent = data.count>9?'9+':data.count; badge.style.display='flex'; } else { badge.style.display='none'; } } } catch(e) {}
+            try { 
+                const res = await fetch('/api/unread-count'); 
+                const data = await res.json(); 
+                const badge = document.querySelector('.badge-notification'); 
+                if(badge) { 
+                    if(data.count > 0) { 
+                        badge.textContent = data.count > 9 ? '9+' : data.count; 
+                        badge.style.display = 'flex'; 
+                    } else { 
+                        badge.style.display = 'none'; 
+                    } 
+                } 
+            } catch(e) {}
         }
         
-        window.addEventListener('load', () => { loadServices(); setInterval(updateUnreadCount, 30000); updateUnreadCount(); });
+        window.addEventListener('load', () => { 
+            loadServices(); 
+            setInterval(updateUnreadCount, 30000); 
+            updateUnreadCount(); 
+        });
     </script>
 </body>
 </html>
