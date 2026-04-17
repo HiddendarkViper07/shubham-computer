@@ -17,6 +17,9 @@ console.log('📦 MongoDB URI:', process.env.MONGODB_URI ? 'Configured' : 'MISSI
 
 const app = express();
 
+// ✅ FIX 1: Trust Railway's proxy
+app.set('trust proxy', 1);
+
 // Models
 const User = require('./models/User');
 
@@ -31,16 +34,15 @@ app.use(express.json());
 app.use(methodOverride('_method'));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// MongoDB Connection - FIXED
+// MongoDB Connection
 const mongoURI = process.env.MONGODB_URI;
 
 if (!mongoURI) {
-    console.error('❌ FATAL ERROR: MONGODB_URI is not defined in environment variables');
-    console.error('Please add MONGODB_URI to your Railway Variables');
+    console.error('❌ FATAL ERROR: MONGODB_URI is not defined');
     process.exit(1);
 }
 
-// Session configuration - FIXED with proper error handling
+// ✅ FIX 2: Session configuration for production
 app.use(session({
     secret: process.env.SESSION_SECRET || 'shubham_secret',
     resave: false,
@@ -54,9 +56,11 @@ app.use(session({
     }),
     cookie: {
         maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
-        secure: process.env.NODE_ENV === 'production', // Secure in production
-        httpOnly: true
-    }
+        secure: process.env.NODE_ENV === 'production' ? true : false, // ✅ true in production
+        httpOnly: true,
+        sameSite: 'lax' // ✅ Important for redirects
+    },
+    name: 'shubham.sid'
 }));
 
 // Passport middleware
@@ -83,7 +87,6 @@ app.use(async (req, res, next) => {
     res.locals.isAuthenticated = !!req.session.user;
     res.locals.isAdmin = req.session.user?.role === 'admin';
     
-    // Load payment settings for views
     try {
         const PaymentSettings = require('./models/PaymentSettings');
         const paymentSettings = await PaymentSettings.findOne();
@@ -97,29 +100,18 @@ app.use(async (req, res, next) => {
     }
     
     res.locals.GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '';
-    res.locals.FACEBOOK_APP_ID = process.env.FACEBOOK_APP_ID || '';
-    res.locals.APPLE_CLIENT_ID = process.env.APPLE_CLIENT_ID || '';
     next();
 });
 
-// MongoDB Connection with retry logic
-const connectWithRetry = async () => {
-    try {
-        await mongoose.connect(mongoURI, {
-            serverSelectionTimeoutMS: 5000,
-            socketTimeoutMS: 45000,
-        });
-        console.log('✅ MongoDB connected successfully');
-    } catch (err) {
-        console.error('❌ MongoDB connection error:', err.message);
-        console.log('Retrying in 5 seconds...');
-        setTimeout(connectWithRetry, 5000);
-    }
-};
+// MongoDB Connection
+mongoose.connect(mongoURI, {
+    serverSelectionTimeoutMS: 5000,
+    socketTimeoutMS: 45000,
+})
+    .then(() => console.log('✅ MongoDB connected successfully'))
+    .catch(err => console.error('❌ MongoDB connection error:', err));
 
-connectWithRetry();
-
-// Initialize Payment Settings if not exists (after DB connection)
+// Initialize Payment Settings
 mongoose.connection.once('open', async () => {
     try {
         const PaymentSettings = require('./models/PaymentSettings');
@@ -186,5 +178,4 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 8081;
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 Server running on port ${PORT}`);
-    console.log(`🔒 Admin panel available at /admin`);
 });
