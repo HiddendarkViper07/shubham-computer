@@ -51,20 +51,25 @@
             <div class="brand-tag">Your Digital Service Partner</div>
         </div>
         <div class="heading">Welcome Back 👋</div>
-        <% if (success) { %><div class="alert alert-success"><%= success %></div><% } %>
-        <% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
+        <% if (typeof success !== 'undefined' && success) { %><div class="alert alert-success"><%= success %></div><% } %>
+        <% if (typeof error !== 'undefined' && error) { %><div class="alert alert-error"><%= error %></div><% } %>
         <form action="/auth/login" method="POST">
             <div class="input-box"><span>📧</span><input type="email" name="email" placeholder="Email Address" required></div>
             <div class="input-box"><span>🔒</span><input type="password" name="password" placeholder="Password" required></div>
             <div class="forgot"><a href="#">Forgot Password?</a></div>
             <button type="submit" class="btn">Login</button>
         </form>
-        <% if (GOOGLE_CLIENT_ID || FACEBOOK_APP_ID || APPLE_CLIENT_ID) { %>
+        <% 
+        const hasGoogle = typeof GOOGLE_CLIENT_ID !== 'undefined' && GOOGLE_CLIENT_ID;
+        const hasFacebook = typeof FACEBOOK_APP_ID !== 'undefined' && FACEBOOK_APP_ID;
+        const hasApple = typeof APPLE_CLIENT_ID !== 'undefined' && APPLE_CLIENT_ID;
+        if (hasGoogle || hasFacebook || hasApple) { 
+        %>
         <div class="divider"><span>OR CONTINUE WITH</span></div>
         <div class="social-buttons">
-            <% if (GOOGLE_CLIENT_ID) { %><a href="/auth/google" class="social-btn google"><img src="https://cdn-icons-png.flaticon.com/512/300/300221.png" alt="Google">Continue with Google</a><% } %>
-            <% if (FACEBOOK_APP_ID) { %><a href="/auth/facebook" class="social-btn facebook"><img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook">Continue with Facebook</a><% } %>
-            <% if (APPLE_CLIENT_ID) { %><a href="/auth/apple" class="social-btn apple"><img src="https://cdn-icons-png.flaticon.com/512/0/747.png" alt="Apple">Continue with Apple</a><% } %>
+            <% if (hasGoogle) { %><a href="/auth/google" class="social-btn google"><img src="https://cdn-icons-png.flaticon.com/512/300/300221.png" alt="Google">Continue with Google</a><% } %>
+            <% if (hasFacebook) { %><a href="/auth/facebook" class="social-btn facebook"><img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook">Continue with Facebook</a><% } %>
+            <% if (hasApple) { %><a href="/auth/apple" class="social-btn apple"><img src="https://cdn-icons-png.flaticon.com/512/0/747.png" alt="Apple">Continue with Apple</a><% } %>
         </div>
         <% } %>
         <div class="signup-link">Don't have an account? <a href="/signup">Sign Up</a></div>
